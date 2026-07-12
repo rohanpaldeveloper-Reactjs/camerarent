@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  BarChart3, Package, Users, ShieldAlert, BadgeDollarSign, RefreshCw, 
-  Layers, Calendar, ClipboardCheck, Ban, Sparkles, Trash2, Edit2, 
+import {
+  BarChart3, Package, Users, ShieldAlert, BadgeDollarSign, RefreshCw,
+  Layers, Calendar, ClipboardCheck, Ban, Sparkles, Trash2, Edit2,
   MessageSquare, UserPlus, X, Send, PhoneCall
 } from 'lucide-react';
 import { apiRequest } from '../utils/api';
@@ -96,7 +96,7 @@ export default function AdminDashboard() {
 
       const usersData = await apiRequest('/auth/admin/users');
       setUsers(usersData);
-      
+
       if (catData.length > 0) {
         setNewProduct(prev => ({ ...prev, categoryId: catData[0].id }));
       }
@@ -169,6 +169,17 @@ export default function AdminDashboard() {
         method: 'PUT',
         body: JSON.stringify({ status: newStatus }),
       });
+      
+      // Auto-trigger WhatsApp dispatch message
+      const order = orders.find(o => o.id === orderId);
+      if (order && order.user.phone) {
+        const firstItem = order.items[0]?.product?.name || 'Equipment Package';
+        const msg = `Hello ${order.user.name}, this is CineRent Operations. Your booking #${order.orderNumber} for the ${firstItem} is now updated to ${newStatus}. Refundable deposit holds will be updated on handback. Thank you!`;
+        const cleanPhone = order.user.phone.replace(/[^0-9+]/g, '');
+        const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
+        window.open(url, '_blank');
+      }
+
       alert(`Order status updated to ${newStatus}`);
       loadAdminData();
     } catch (err: any) {
@@ -314,7 +325,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="py-6 px-4 max-w-7xl mx-auto space-y-8 bg-slate-50 min-h-screen text-slate-800">
-      
+
       {/* Title Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200/60">
         <div>
@@ -369,16 +380,14 @@ export default function AdminDashboard() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`py-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${
-              activeTab === tab.id
+            className={`py-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 cursor-pointer ${activeTab === tab.id
                 ? 'border-brand-600 text-brand-600'
                 : 'border-transparent text-slate-400 hover:text-slate-700'
-            }`}
+              }`}
           >
             {tab.label}
-            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${
-              activeTab === tab.id ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-500'
-            }`}>
+            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${activeTab === tab.id ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-500'
+              }`}>
               {tab.count}
             </span>
           </button>
@@ -392,7 +401,7 @@ export default function AdminDashboard() {
         </div>
       ) : (
         <div className="space-y-6">
-          
+
           {/* TAB 1: ORDERS */}
           {activeTab === 'orders' && (
             <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
@@ -491,11 +500,10 @@ export default function AdminDashboard() {
                             {c.reason}
                           </td>
                           <td className="p-4">
-                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                              c.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                              c.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${c.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                                c.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                  'bg-red-100 text-red-700'
+                              }`}>
                               {c.status}
                             </span>
                           </td>
@@ -598,7 +606,7 @@ export default function AdminDashboard() {
           {/* TAB 4: PRODUCTS & MAINTENANCE BLACKOUTS */}
           {activeTab === 'products' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              
+
               {/* Product list */}
               <div className="lg:col-span-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                 <h3 className="font-extrabold text-base text-slate-800">Current Inventory</h3>
@@ -615,7 +623,7 @@ export default function AdminDashboard() {
                           <p className="text-[10px] text-slate-400">{p.category.name} | Dep: ₹{p.depositAmount}</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-3">
                         <span className="font-bold text-xs text-slate-800 shrink-0">₹{p.dailyRate}/d</span>
                         <div className="flex gap-1.5">
@@ -642,7 +650,7 @@ export default function AdminDashboard() {
 
               {/* Operations forms */}
               <div className="lg:col-span-6 space-y-6">
-                
+
                 {/* 1. Add Product Form */}
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
                   <h3 className="font-extrabold text-sm text-slate-800 flex items-center gap-1.5 mb-4">
@@ -810,7 +818,7 @@ export default function AdminDashboard() {
           {/* TAB 5: USERS MANAGER */}
           {activeTab === 'users' && (
             <div className="space-y-6">
-              
+
               <div className="flex justify-between items-center pb-2">
                 <h3 className="font-extrabold text-base text-slate-800">User Profiles Manager</h3>
                 <button
@@ -842,20 +850,18 @@ export default function AdminDashboard() {
                           <td className="p-4 text-slate-600 font-mono">{u.email}</td>
                           <td className="p-4 text-slate-600">{u.phone || '—'}</td>
                           <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-wide ${
-                              u.role === 'ADMIN' ? 'bg-indigo-100 text-indigo-700' :
-                              u.role === 'VENDOR' ? 'bg-cyan-100 text-cyan-700' :
-                              'bg-slate-100 text-slate-600'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-wide ${u.role === 'ADMIN' ? 'bg-indigo-100 text-indigo-700' :
+                                u.role === 'VENDOR' ? 'bg-cyan-100 text-cyan-700' :
+                                  'bg-slate-100 text-slate-600'
+                              }`}>
                               {u.role}
                             </span>
                           </td>
                           <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                              u.kycStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                              u.kycStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700 animate-pulse' :
-                              'bg-slate-100 text-slate-500'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${u.kycStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
+                                u.kycStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700 animate-pulse' :
+                                  'bg-slate-100 text-slate-500'
+                              }`}>
                               {u.kycStatus}
                             </span>
                           </td>
@@ -887,13 +893,13 @@ export default function AdminDashboard() {
       {showAddUserModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl w-full max-w-md p-6 relative shadow-2xl border border-slate-100 animate-fade-in">
-            <button 
+            <button
               onClick={() => setShowAddUserModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-700 transition"
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-1.5 mb-4">
               <UserPlus className="w-5 h-5 text-brand-600" /> Add New User Profile
             </h3>
@@ -974,13 +980,13 @@ export default function AdminDashboard() {
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl w-full max-w-lg p-6 relative shadow-2xl border border-slate-100 animate-fade-in">
-            <button 
+            <button
               onClick={() => setEditingProduct(null)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-700 transition"
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-1.5 mb-4">
               <Edit2 className="w-5 h-5 text-brand-600" /> Edit Equipment Listing
             </h3>
@@ -1079,13 +1085,13 @@ export default function AdminDashboard() {
       {whatsappOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl w-full max-w-md p-6 relative shadow-2xl border border-slate-100 animate-fade-in">
-            <button 
+            <button
               onClick={() => setWhatsappOrder(null)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-700 transition"
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-1.5 mb-4">
               <MessageSquare className="w-5 h-5 text-green-600" /> WhatsApp Update Dispatcher
             </h3>

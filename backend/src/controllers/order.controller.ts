@@ -362,8 +362,15 @@ router.put('/:id/status', requireRole(['ADMIN', 'VENDOR']), async (req: Request,
       data: { status },
     });
 
-    // Simulate WhatsApp update
-    console.log(`[WhatsApp API Mock] Order ${order.orderNumber} status changed to ${status}`);
+    // Retrieve customer user details for mock WhatsApp dispatch
+    const customer = await prisma.user.findUnique({
+      where: { id: order.userId }
+    });
+    if (customer) {
+      const firstItem = order.items[0]?.product?.name || 'Equipment';
+      const waMsg = `Hello ${customer.name}, your CineRent booking #${order.orderNumber} for the ${firstItem} has been updated to status: ${status}. Refundable deposit holds will be updated on handback. Thank you!`;
+      console.log(`[WhatsApp API Automated Send] To ${customer.phone || 'N/A'}: "${waMsg}"`);
+    }
 
     res.json({
       message: `Order status updated to ${status}`,
