@@ -280,27 +280,34 @@ export default function Home() {
               <Link
                 key={p.id}
                 to={`/products/${p.slug}`}
-                className="w-56 shrink-0 bg-white border border-slate-100 rounded-3xl p-3 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                className="w-56 h-[275px] shrink-0 bg-white border border-slate-100 rounded-3xl p-3 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between"
               >
                 <div className="space-y-3">
-                  <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 border border-slate-50 relative group">
+                  <div className="h-32 w-full rounded-2xl overflow-hidden bg-slate-100 relative group shrink-0">
+                    {/* Fallback Camera Icon for Broken Images */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-350">
+                      <Camera className="w-8 h-8 opacity-40 text-slate-400" />
+                    </div>
                     <img
                       src={p.images.split(',')[0]}
                       alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-10"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
-                    <span className="absolute top-2 left-2 bg-green-500 text-white text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm">
+                    <span className="absolute top-2 left-2 bg-green-500 text-white text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm z-20">
                       KYC Approved
                     </span>
                   </div>
 
                   <div className="space-y-1 px-1">
                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{p.category.name}</span>
-                    <h3 className="text-xs font-bold text-slate-800 line-clamp-1 leading-tight">{p.name}</h3>
+                    <h3 className="text-xs font-bold text-slate-800 line-clamp-2 leading-tight h-8">{p.name}</h3>
                   </div>
                 </div>
 
-                <div className="pt-3.5 mt-3 border-t border-slate-100 flex items-center justify-between px-1">
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between px-1">
                   <div>
                     <span className="text-[8px] font-bold text-slate-400 block leading-tight">From</span>
                     <span className="text-xs font-black text-slate-850">${p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
@@ -415,23 +422,30 @@ export default function Home() {
               <Link
                 key={p.id}
                 to={`/products/${p.slug}`}
-                className="bg-white border border-slate-100 rounded-3xl p-3.5 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between group h-80"
+                className="bg-white border border-slate-100 rounded-3xl p-3.5 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between group h-[285px]"
               >
                 <div>
-                  <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 border border-slate-50 relative">
+                  <div className="h-32 w-full rounded-2xl overflow-hidden bg-slate-100 relative shrink-0">
+                    {/* Fallback Camera Icon for Broken Images */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-350">
+                      <Camera className="w-8 h-8 opacity-40 text-slate-400" />
+                    </div>
                     <img
                       src={p.images.split(',')[0]}
                       alt={p.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-10"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   </div>
                   <div className="space-y-1 mt-3 px-1">
                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{p.category.name}</span>
-                    <h3 className="text-xs font-bold text-slate-800 line-clamp-1 leading-tight group-hover:text-brand-650 transition">{p.name}</h3>
+                    <h3 className="text-xs font-bold text-slate-800 line-clamp-2 leading-tight h-8 group-hover:text-brand-650 transition">{p.name}</h3>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-3 px-1">
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between mt-3 px-1">
                   <div>
                     <span className="text-[8px] font-bold text-slate-400 block leading-tight">From</span>
                     <span className="text-xs font-black text-slate-850">${p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
