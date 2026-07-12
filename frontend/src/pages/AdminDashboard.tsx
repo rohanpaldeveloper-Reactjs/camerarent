@@ -163,6 +163,19 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUpdateUserKycStatus = async (userId: string, newKycStatus: string) => {
+    try {
+      await apiRequest(`/auth/admin/kyc/${userId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status: newKycStatus }),
+      });
+      alert(`User KYC Status updated to ${newKycStatus}`);
+      loadAdminData();
+    } catch (err: any) {
+      alert(`Failed to update KYC status: ${err.message}`);
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       await apiRequest(`/orders/${orderId}/status`, {
@@ -858,12 +871,21 @@ export default function AdminDashboard() {
                             </span>
                           </td>
                           <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${u.kycStatus === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                                u.kycStatus === 'PENDING' ? 'bg-yellow-100 text-yellow-700 animate-pulse' :
-                                  'bg-slate-100 text-slate-500'
-                              }`}>
-                              {u.kycStatus}
-                            </span>
+                            <select
+                              value={u.kycStatus}
+                              onChange={(e) => handleUpdateUserKycStatus(u.id, e.target.value)}
+                              className={`px-2 py-1 rounded-lg text-[10px] font-bold focus:outline-none border border-slate-200 cursor-pointer ${
+                                u.kycStatus === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' :
+                                u.kycStatus === 'PENDING' ? 'bg-yellow-50 text-yellow-700 border-yellow-250 animate-pulse' :
+                                u.kycStatus === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' :
+                                'bg-slate-50 text-slate-500'
+                              }`}
+                            >
+                              <option value="NONE">NONE</option>
+                              <option value="PENDING">PENDING</option>
+                              <option value="APPROVED">APPROVED</option>
+                              <option value="REJECTED">REJECTED</option>
+                            </select>
                           </td>
                           <td className="p-4 text-slate-400">
                             {new Date(u.createdAt).toLocaleDateString()}

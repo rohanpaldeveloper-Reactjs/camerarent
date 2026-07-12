@@ -188,8 +188,8 @@ router.put('/admin/kyc/:userId', authMiddleware, requireRole(['ADMIN']), async (
   const { userId } = req.params;
   const { status } = req.body; // APPROVED or REJECTED
 
-  if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
-    return res.status(400).json({ error: 'Status must be APPROVED or REJECTED' });
+  if (!status || !['NONE', 'PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
+    return res.status(400).json({ error: 'Status must be NONE, PENDING, APPROVED or REJECTED' });
   }
 
   try {
