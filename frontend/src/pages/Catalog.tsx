@@ -299,7 +299,7 @@ export default function Catalog() {
                     <div className="pt-2 border-t border-slate-50 flex justify-between items-center">
                       <div>
                         <p className="text-[8px] text-slate-400 uppercase font-semibold">Rate/Day</p>
-                        <p className="text-xs font-black text-slate-900">${product.dailyRate}</p>
+                        <p className="text-xs font-black text-slate-900">₹{product.dailyRate}</p>
                       </div>
                       <span className="text-[9px] text-slate-400 font-bold flex items-center gap-0.5 group-hover:text-brand-600 transition">
                         Rent Gear <ChevronRight className="w-3.5 h-3.5" />

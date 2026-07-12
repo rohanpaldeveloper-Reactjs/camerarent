@@ -352,7 +352,7 @@ export default function AdminDashboard() {
           </div>
           <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm flex flex-col justify-between col-span-2 lg:col-span-1">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Revenue</span>
-            <span className="text-2xl font-extrabold text-green-600 mt-2">${stats.totalRevenue.toFixed(2)}</span>
+            <span className="text-2xl font-extrabold text-green-600 mt-2">₹{stats.totalRevenue.toFixed(2)}</span>
           </div>
         </div>
       )}
@@ -421,8 +421,8 @@ export default function AdminDashboard() {
                           {o.user.phone && <p className="text-[9px] text-slate-400 font-bold">{o.user.phone}</p>}
                         </td>
                         <td className="p-4">
-                          <p className="font-bold text-slate-800">${o.grandTotal.toFixed(2)}</p>
-                          <p className="text-[10px] text-brand-600 font-bold">Dep: ${o.totalDeposit.toFixed(2)}</p>
+                          <p className="font-bold text-slate-800">₹{o.grandTotal.toFixed(2)}</p>
+                          <p className="text-[10px] text-brand-600 font-bold">Dep: ₹{o.totalDeposit.toFixed(2)}</p>
                         </td>
                         <td className="p-4">
                           <p className="text-slate-600 max-w-[200px] line-clamp-1">{o.shippingAddress}</p>
@@ -612,13 +612,12 @@ export default function AdminDashboard() {
                           className="w-10 h-10 object-cover rounded-lg bg-slate-100 border border-slate-200"
                         />
                         <div>
-                          <p className="font-bold text-xs text-slate-800 line-clamp-1">{p.name}</p>
-                          <p className="text-[10px] text-slate-400">{p.category.name} | Dep: ${p.depositAmount}</p>
+                          <p className="text-[10px] text-slate-400">{p.category.name} | Dep: ₹{p.depositAmount}</p>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-3">
-                        <span className="font-bold text-xs text-slate-800 shrink-0">${p.dailyRate}/d</span>
+                        <span className="font-bold text-xs text-slate-800 shrink-0">₹{p.dailyRate}/d</span>
                         <div className="flex gap-1.5">
                           <button
                             onClick={() => setEditingProduct(p)}
@@ -677,7 +676,7 @@ export default function AdminDashboard() {
 
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Daily ($)</label>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Daily (₹)</label>
                         <input
                           type="number"
                           value={newProduct.dailyRate}
@@ -687,7 +686,7 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Weekly ($)</label>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Weekly (₹)</label>
                         <input
                           type="number"
                           value={newProduct.weeklyRate}
@@ -697,7 +696,7 @@ export default function AdminDashboard() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Deposit ($)</label>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Deposit (₹)</label>
                         <input
                           type="number"
                           value={newProduct.depositAmount}
@@ -1014,7 +1013,7 @@ export default function AdminDashboard() {
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Daily Rate ($)</label>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Daily Rate (₹)</label>
                   <input
                     type="number"
                     value={editingProduct.dailyRate}
@@ -1024,7 +1023,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Weekly Rate ($)</label>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Weekly Rate (₹)</label>
                   <input
                     type="number"
                     value={editingProduct.weeklyRate}
@@ -1034,7 +1033,7 @@ export default function AdminDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Deposit ($)</label>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Deposit (₹)</label>
                   <input
                     type="number"
                     value={editingProduct.depositAmount}

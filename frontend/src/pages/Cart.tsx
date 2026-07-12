@@ -121,8 +121,8 @@ export default function Cart() {
 
                 {/* Price block */}
                 <div className="text-right">
-                  <p className="text-xs font-bold text-slate-700">Rental: ${item.rentalCost.toFixed(2)}</p>
-                  <p className="text-[10px] text-brand-600 font-bold">Deposit: +${item.depositCost.toFixed(2)}</p>
+                  <p className="text-xs font-bold text-slate-700">Rental: ₹{item.rentalCost.toFixed(2)}</p>
+                  <p className="text-[10px] text-brand-600 font-bold">Deposit: +₹{item.depositCost.toFixed(2)}</p>
                 </div>
               </div>
 
@@ -158,19 +158,19 @@ export default function Cart() {
             <div className="space-y-3 text-xs">
               <div className="flex justify-between text-slate-500">
                 <span>Rental Subtotal:</span>
-                <span className="font-bold text-slate-700">${rentalTotal.toFixed(2)}</span>
+                <span className="font-bold text-slate-700">₹{rentalTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-500">
                 <span>18% GST (Taxes):</span>
-                <span className="font-bold text-slate-700">${taxTotal.toFixed(2)}</span>
+                <span className="font-bold text-slate-700">₹{taxTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-brand-600 font-extrabold border-b border-dashed border-slate-200 pb-3">
                 <span>Refundable Security Deposit:</span>
-                <span>${depositTotal.toFixed(2)}</span>
+                <span>₹{depositTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm font-extrabold text-slate-900 pt-1">
                 <span>Grand Total:</span>
-                <span>${grandTotal.toFixed(2)}</span>
+                <span>₹{grandTotal.toFixed(2)}</span>
               </div>
             </div>
 

@@ -193,15 +193,15 @@ export default function ProductDetail() {
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100">
               <div className="text-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Daily Rate</span>
-                <span className="text-base font-extrabold text-slate-800">${product.dailyRate}</span>
+                <span className="text-base font-extrabold text-slate-800">₹{product.dailyRate}</span>
               </div>
               <div className="text-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Weekly Rate</span>
-                <span className="text-base font-extrabold text-accent-600">${product.weeklyRate}</span>
+                <span className="text-base font-extrabold text-accent-600">₹{product.weeklyRate}</span>
               </div>
               <div className="text-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Refundable Dep</span>
-                <span className="text-base font-extrabold text-brand-600">${product.depositAmount}</span>
+                <span className="text-base font-extrabold text-brand-600">₹{product.depositAmount}</span>
               </div>
             </div>
 
@@ -247,20 +247,20 @@ export default function ProductDetail() {
                   <span>{diffDays} days</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
-                  <span>Rental Cost (${diffDays} days x {quantity} unit):</span>
-                  <span>${rentalCost.toFixed(2)}</span>
+                  <span>Rental Cost ({diffDays} days x {quantity} unit):</span>
+                  <span>₹{rentalCost.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span>18% GST (Taxes):</span>
-                  <span>${taxCost.toFixed(2)}</span>
+                  <span>₹{taxCost.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-brand-600 font-bold border-b border-dashed border-slate-200 pb-2">
                   <span>Security Deposit (Refundable):</span>
-                  <span>${depositCost.toFixed(2)}</span>
+                  <span>₹{depositCost.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm font-extrabold text-slate-900 pt-1">
                   <span>Grand Total due:</span>
-                  <span>${grandTotal.toFixed(2)}</span>
+                  <span>₹{grandTotal.toFixed(2)}</span>
                 </div>
               </div>
             )}

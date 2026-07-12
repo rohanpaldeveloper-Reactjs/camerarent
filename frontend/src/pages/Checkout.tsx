@@ -92,7 +92,7 @@ export default function Checkout() {
           <div className="p-3 bg-dark-bg/60 border border-dark-border rounded-xl font-mono text-[10px] text-slate-300 leading-normal space-y-1.5">
             <p><strong>To:</strong> John Doe (Customer)</p>
             <p className="text-[11px] text-slate-200">
-              "Hi John! Your CineRent booking <strong>#{orderNum}</strong> for total <strong>${grandTotal.toFixed(2)}</strong> (including ${depositTotal.toFixed(2)} deposit hold) has been registered. We'll update you once approved!"
+              "Hi John! Your CineRent booking <strong>#{orderNum}</strong> for total <strong>₹{grandTotal.toFixed(2)}</strong> (including ₹{depositTotal.toFixed(2)} deposit hold) has been registered. We'll update you once approved!"
             </p>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function Checkout() {
                     {item.rentalDays} days x {item.quantity} unit
                   </p>
                 </div>
-                <span className="font-semibold text-gray-200">${item.rentalCost.toFixed(2)}</span>
+                <span className="font-semibold text-gray-200">₹{item.rentalCost.toFixed(2)}</span>
               </div>
             ))}
           </div>
@@ -208,19 +208,19 @@ export default function Checkout() {
           <div className="space-y-3 text-xs">
             <div className="flex justify-between text-slate-400">
               <span>Rental Cost:</span>
-              <span className="font-bold text-gray-200">${rentalTotal.toFixed(2)}</span>
+              <span className="font-bold text-gray-200">₹{rentalTotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-slate-400">
               <span>18% GST (Taxes):</span>
-              <span className="font-bold text-gray-200">${taxTotal.toFixed(2)}</span>
+              <span className="font-bold text-gray-200">₹{taxTotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-brand-400 font-bold border-b border-dashed border-dark-border pb-3">
               <span>Security Deposit (Authorize Hold):</span>
-              <span>${depositTotal.toFixed(2)}</span>
+              <span>₹{depositTotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm font-extrabold text-white pt-1">
               <span>Grand Total due:</span>
-              <span>${grandTotal.toFixed(2)}</span>
+              <span>₹{grandTotal.toFixed(2)}</span>
             </div>
           </div>
         </div>

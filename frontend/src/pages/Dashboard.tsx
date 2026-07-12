@@ -212,7 +212,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xs font-bold text-slate-800">${item.totalCost.toFixed(2)}</p>
+                          <p className="text-xs font-bold text-slate-800">₹{item.totalCost.toFixed(2)}</p>
                           <p className="text-[10px] text-slate-400">Qty: {item.quantity}</p>
                         </div>
                       </div>
@@ -222,8 +222,8 @@ export default function Dashboard() {
                   {/* Order Summary Bottom */}
                   <div className="pt-4 border-t border-slate-100 flex justify-between items-center flex-wrap gap-4 text-xs">
                     <div>
-                      <p className="text-slate-500">Grand Total: <strong className="text-slate-900">${order.grandTotal.toFixed(2)}</strong></p>
-                      <p className="text-[10px] text-slate-400">Security Deposit hold: ${order.totalDeposit.toFixed(2)}</p>
+                      <p className="text-slate-500">Grand Total: <strong className="text-slate-900">₹{order.grandTotal.toFixed(2)}</strong></p>
+                      <p className="text-[10px] text-slate-400">Security Deposit hold: ₹{order.totalDeposit.toFixed(2)}</p>
                     </div>
 
                     {/* Cancellation Actions */}
@@ -321,7 +321,7 @@ export default function Dashboard() {
 
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs text-slate-500 leading-normal space-y-2 font-medium">
                   <p className="text-slate-800 font-bold">Why is verification required?</p>
-                  <p>High-end camera rental values can range from $1,000 to $15,000. Verification is a standard safety measure for rental businesses to protect against theft or fraud.</p>
+                  <p>High-end camera rental values can range from ₹80,000 to ₹12,00,000. Verification is a standard safety measure for rental businesses to protect against theft or fraud.</p>
                 </div>
 
                 <form onSubmit={handleKycSubmit} className="space-y-4">

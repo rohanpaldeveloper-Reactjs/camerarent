@@ -99,7 +99,7 @@ export default function Home() {
             />
             <div>
               <p className="text-[10px] font-bold text-white leading-tight">Sony FX3 Cinema</p>
-              <p className="text-[9px] text-amber-400 font-bold mt-0.5">From $120/day</p>
+              <p className="text-[9px] text-amber-400 font-bold mt-0.5">From ₹120/day</p>
             </div>
           </div>
 
@@ -310,7 +310,7 @@ export default function Home() {
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between px-1">
                   <div>
                     <span className="text-[8px] font-bold text-slate-400 block leading-tight">From</span>
-                    <span className="text-xs font-black text-slate-850">${p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
+                    <span className="text-xs font-black text-slate-850">₹{p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-500">
                     <Star className="w-3 h-3 fill-amber-500" />
@@ -448,7 +448,7 @@ export default function Home() {
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between mt-3 px-1">
                   <div>
                     <span className="text-[8px] font-bold text-slate-400 block leading-tight">From</span>
-                    <span className="text-xs font-black text-slate-850">${p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
+                    <span className="text-xs font-black text-slate-850">₹{p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
                   </div>
                   <span className="text-[9px] bg-slate-50 border border-slate-100 text-slate-650 font-bold px-2 py-0.5 rounded-lg capitalize">
                     {p.vendor.name.split(' ')[0]}
