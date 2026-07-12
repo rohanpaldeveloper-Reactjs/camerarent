@@ -1,4 +1,4 @@
-export const API_BASE = 'http://localhost:5001/api';
+export const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 /**
  * Custom fetch wrapper that automatically appends the Authorization header
