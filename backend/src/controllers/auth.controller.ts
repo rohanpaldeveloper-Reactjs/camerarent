@@ -1,0 +1,298 @@
+import { Router, Request, Response } from 'express';
+import { prisma } from '../db';
+import { authMiddleware, requireRole } from '../middleware/auth.middleware';
+
+const router = Router();
+
+// Login
+router.post('/login', async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        vendorProfile: true,
+      },
+    });
+
+    if (!user || user.password !== password) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    res.json({
+      message: 'Login successful',
+      token: user.id, // We use the userId directly as the token for our MVP simplification
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        kycStatus: user.kycStatus,
+        kycDocUrl: user.kycDocUrl,
+        vendorProfile: user.vendorProfile ? {
+          id: user.vendorProfile.id,
+          name: user.vendorProfile.name,
+        } : null,
+      },
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error during login' });
+  }
+});
+
+// Signup
+router.post('/signup', async (req: Request, res: Response) => {
+  const { email, password, name } = req.body;
+
+  if (!email || !password || !name) {
+    return res.status(400).json({ error: 'Email, password, and name are required' });
+  }
+
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: 'Email is already registered' });
+    }
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password,
+        name,
+        role: 'CUSTOMER',
+        kycStatus: 'NONE',
+      },
+    });
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      token: user.id,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        kycStatus: user.kycStatus,
+        kycDocUrl: null,
+        vendorProfile: null,
+      },
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ error: 'Internal server error during registration' });
+  }
+});
+
+// Get current user profile
+router.get('/me', authMiddleware, async (req: Request, res: Response) => {
+  res.json({ user: req.user });
+});
+
+// Update profile details (Name, Email, Phone, Password)
+router.put('/profile', authMiddleware, async (req: Request, res: Response) => {
+  const { name, email, phone, password } = req.body;
+
+  try {
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (email) {
+      const existing = await prisma.user.findUnique({ where: { email } });
+      if (existing && existing.id !== req.user!.id) {
+        return res.status(400).json({ error: 'Email address is already in use' });
+      }
+      updateData.email = email;
+    }
+    if (phone !== undefined) updateData.phone = phone || null;
+    if (password) updateData.password = password;
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: updateData,
+    });
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        role: updatedUser.role,
+        kycStatus: updatedUser.kycStatus,
+        kycDocUrl: updatedUser.kycDocUrl,
+      },
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ error: 'Failed to update profile details' });
+  }
+});
+
+// Update KYC document link (Customer self-serve)
+router.put('/kyc', authMiddleware, async (req: Request, res: Response) => {
+  const { kycDocUrl } = req.body;
+
+  if (!kycDocUrl) {
+    return res.status(400).json({ error: 'KYC Document URL is required' });
+  }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user!.id },
+      data: {
+        kycDocUrl,
+        kycStatus: 'PENDING',
+      },
+    });
+
+    res.json({
+      message: 'KYC documents submitted. Pending administrative review.',
+      kycStatus: 'PENDING',
+      kycDocUrl: updatedUser.kycDocUrl,
+    });
+  } catch (error) {
+    console.error('KYC update error:', error);
+    res.status(500).json({ error: 'Internal server error during KYC submission' });
+  }
+});
+
+// Get all users with pending KYC reviews (Admin)
+router.get('/admin/kyc-pending', authMiddleware, requireRole(['ADMIN']), async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      where: { kycStatus: 'PENDING' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        kycStatus: true,
+        kycDocUrl: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(users);
+  } catch (error) {
+    console.error('Fetch pending KYC users error:', error);
+    res.status(500).json({ error: 'Failed to fetch pending KYC users' });
+  }
+});
+
+// Update KYC status for a user (Admin)
+router.put('/admin/kyc/:userId', authMiddleware, requireRole(['ADMIN']), async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const { status } = req.body; // APPROVED or REJECTED
+
+  if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
+    return res.status(400).json({ error: 'Status must be APPROVED or REJECTED' });
+  }
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { kycStatus: status },
+    });
+
+    res.json({
+      message: `KYC status updated to ${status} for user ${updatedUser.name}`,
+      userId,
+      kycStatus: updatedUser.kycStatus,
+    });
+  } catch (error) {
+    console.error('Update KYC status error:', error);
+    res.status(500).json({ error: 'Failed to update user KYC status' });
+  }
+});
+
+// Get all users (Admin only)
+router.get('/admin/users', authMiddleware, requireRole(['ADMIN']), async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        role: true,
+        kycStatus: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(users);
+  } catch (error) {
+    console.error('Fetch all users error:', error);
+    res.status(500).json({ error: 'Failed to fetch users list' });
+  }
+});
+
+// Create a new user (Admin only)
+router.post('/admin/users', authMiddleware, requireRole(['ADMIN']), async (req: Request, res: Response) => {
+  const { name, email, password, phone, role } = req.body;
+
+  if (!name || !email || !password || !role) {
+    return res.status(400).json({ error: 'Name, email, password, and role are required' });
+  }
+
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
+
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password,
+        phone: phone || null,
+        role,
+        kycStatus: role === 'ADMIN' ? 'APPROVED' : 'NONE',
+      },
+    });
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+        role: newUser.role,
+        kycStatus: newUser.kycStatus,
+      },
+    });
+  } catch (error) {
+    console.error('Create user by admin error:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+});
+
+// Delete a user (Admin only)
+router.delete('/admin/users/:id', authMiddleware, requireRole(['ADMIN']), async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (req.user!.id === id) {
+    return res.status(400).json({ error: 'Self-deletion is forbidden. You cannot delete your own admin account.' });
+  }
+
+  try {
+    const existingUser = await prisma.user.findUnique({ where: { id } });
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await prisma.user.delete({ where: { id } });
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
+export default router;

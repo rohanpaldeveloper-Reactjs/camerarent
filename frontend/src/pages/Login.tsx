@@ -1,0 +1,127 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Camera, AlertCircle } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [localError, setLocalError] = useState('');
+  const { login, loading, error, clearError } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocalError('');
+    clearError();
+
+    if (!email || !password) {
+      setLocalError('Please enter both email and password.');
+      return;
+    }
+
+    try {
+      await login(email, password);
+      // Wait for store to update, then navigate based on role
+      const user = useAuthStore.getState().user;
+      if (user?.role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch (err: any) {
+      // Handled by store, error is set in Zustand state
+    }
+  };
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center px-4 gradient-bg">
+      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/20 mx-auto mb-4">
+            <Camera className="w-6 h-6 text-white" />
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-white font-sans">
+            Welcome back to CineRent
+          </h2>
+          <p className="text-sm text-slate-400 mt-2">
+            Sign in to book camera gear & manage rentals
+          </p>
+        </div>
+
+        {/* Errors */}
+        {(localError || error) && (
+          <div className="mb-6 bg-red-500/10 border border-red-500/30 p-4 rounded-xl flex items-start gap-3 text-sm text-red-400">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <p>{localError || error}</p>
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-dark-muted uppercase tracking-wider mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="customer@gmail.com or admin@cinerent.com"
+              className="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-800 transition"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-dark-muted uppercase tracking-wider mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-800 transition"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-brand-600 hover:bg-brand-500 disabled:bg-brand-800 text-white text-sm font-bold py-3 rounded-xl shadow-lg shadow-brand-500/25 hover:scale-[1.01] active:scale-[0.99] transition duration-200 cursor-pointer"
+          >
+            {loading ? 'Authenticating...' : 'Sign In'}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div className="mt-8 text-center text-xs text-slate-400">
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-brand-600 hover:text-brand-700 font-bold hover:underline">
+            Register for free
+          </Link>
+        </div>
+
+        {/* Pre-fill credentials helper for ease of demo */}
+        <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500 space-y-1">
+          <p className="font-bold text-xs text-slate-700">Demo Accounts Available:</p>
+          <div className="flex justify-between">
+            <span>Customer: <strong className="text-slate-700">customer@gmail.com</strong></span>
+            <span>Pass: <strong className="text-slate-700">password123</strong></span>
+          </div>
+          <div className="flex justify-between">
+            <span>Super Admin: <strong className="text-slate-700">admin@cinerent.com</strong></span>
+            <span>Pass: <strong className="text-slate-700">password123</strong></span>
+          </div>
+          <div className="flex justify-between">
+            <span>Apex Vendor: <strong className="text-slate-700">apex@cinerent.com</strong></span>
+            <span>Pass: <strong className="text-slate-700">password123</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

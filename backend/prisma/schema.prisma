@@ -1,0 +1,150 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                   String                 @id @default(uuid())
+  email                String                 @unique
+  password             String
+  name                 String
+  phone                String?
+  role                 String                 // "ADMIN", "CUSTOMER", "VENDOR"
+  kycStatus            String                 @default("NONE") // "NONE", "PENDING", "APPROVED", "REJECTED"
+  kycDocUrl            String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  
+  // Relations
+  vendorProfile        Vendor?
+  cartItems            CartItem[]
+  orders               Order[]
+  cancellationResolves CancellationRequest[]  @relation("ResolvedBy")
+}
+
+model Vendor {
+  id             String    @id @default(uuid())
+  name           String
+  email          String    @unique
+  phone          String?
+  commissionRate Float     @default(15.0) // percentage
+  isActive       Boolean   @default(true)
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products       Product[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id            String    @id @default(uuid())
+  name          String
+  slug          String
+  description   String
+  specs         String    // JSON string or long text
+  dailyRate     Float
+  weeklyRate    Float
+  depositAmount Float
+  images        String    // Comma-separated list of image URLs or JSON string
+  vendorId      String
+  vendor        Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  categoryId    String
+  category      Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  blackouts     ProductAvailabilityBlackout[]
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+}
+
+model ProductAvailabilityBlackout {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  startDate DateTime
+  endDate   DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  startDate DateTime
+  endDate   DateTime
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id               String               @id @default(uuid())
+  orderNumber      String               @unique // E.g., CR-2026-XXXX
+  userId           String
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           String               @default("PLACED") // "PLACED", "PENDING_APPROVAL", "APPROVED", "DISPATCHED", "ACTIVE", "RETURNED", "COMPLETED", "CANCELLED"
+  totalRentalCost  Float
+  totalDeposit     Float
+  totalTax         Float
+  grandTotal       Float
+  deliveryAddress  String
+  deliveryDetails  String?
+  paymentId        String?
+  kycDocUrl        String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  // Relations
+  items            OrderItem[]
+  cancellation     CancellationRequest?
+}
+
+model OrderItem {
+  id            String   @id @default(uuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity      Int      @default(1)
+  startDate     DateTime
+  endDate       DateTime
+  dailyRate     Float
+  weeklyRate    Float
+  depositAmount Float
+  totalCost     Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CancellationRequest {
+  id               String    @id @default(uuid())
+  orderId          String    @unique
+  order            Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reason           String
+  status           String    @default("PENDING") // "PENDING", "APPROVED", "REJECTED"
+  resolvedByUserId String?
+  resolvedByUser   User?     @relation("ResolvedBy", fields: [resolvedByUserId], references: [id])
+  resolvedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
