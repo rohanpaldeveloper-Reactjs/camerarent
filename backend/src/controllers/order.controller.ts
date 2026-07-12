@@ -137,8 +137,8 @@ router.post('/checkout', async (req: Request, res: Response) => {
 
     // Simulate WhatsApp message (just logging in development)
     console.log(`[WhatsApp API Mock] Order placed: ${orderNumber}`);
-    console.log(`To Customer: "Your order ${orderNumber} for total $${grandTotal.toFixed(2)} has been placed."`);
-    console.log(`To Admin/Ops: "New Order alert: ${orderNumber} from ${req.user!.name} for $${grandTotal.toFixed(2)}"`);
+    console.log(`To Customer: "Your order ${orderNumber} for total ₹${grandTotal.toFixed(2)} has been placed."`);
+    console.log(`To Admin/Ops: "New Order alert: ${orderNumber} from ${req.user!.name} for ₹${grandTotal.toFixed(2)}"`);
 
     res.status(201).json({
       message: 'Order placed successfully',
