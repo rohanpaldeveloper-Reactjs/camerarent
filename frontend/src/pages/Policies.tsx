@@ -8,10 +8,10 @@ export default function Policies() {
       {/* Header */}
       <div className="space-y-3 border-b border-slate-200/60 pb-6">
         <h1 className="text-3xl font-extrabold text-slate-900 font-sans tracking-tight">
-          CineRent Terms & Policies
+          CameraRent Terms & Policies
         </h1>
         <p className="text-sm text-slate-500">
-          Last revised: July 2026. These rules establish terms of hire between Vendors, Customers, and CineRent platform.
+          Last revised: July 2026. These rules establish terms of hire between Vendors, Customers, and CameraRent platform.
         </p>
       </div>
 

@@ -34,7 +34,7 @@ export default function Navbar() {
           <Camera className="w-5 h-5 text-white" />
         </div>
         <span className="font-sans font-extrabold text-lg md:text-xl tracking-tight text-slate-800">
-          Cine<span className="text-brand-600">Rent</span>
+          Camera<span className="text-brand-600">Rent</span>
         </span>
       </Link>
 

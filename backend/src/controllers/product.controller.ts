@@ -152,13 +152,110 @@ router.get('/:id/unavailable-dates', async (req: Request, res: Response) => {
   }
 });
 
+// Get range-based stock availability details
+router.get('/:id/stock-availability', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { startDate, endDate } = req.query;
+
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      select: { totalStock: true }
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const totalStock = product.totalStock;
+
+    if (!startDate || !endDate) {
+      return res.json({
+        totalStock,
+        bookedCount: 0,
+        availableStock: totalStock,
+      });
+    }
+
+    const start = new Date(startDate as string);
+    start.setUTCHours(0, 0, 0, 0);
+    const end = new Date(endDate as string);
+    end.setUTCHours(23, 59, 59, 999);
+
+    if (start > end) {
+      return res.status(400).json({ error: 'Start date must be before end date' });
+    }
+
+    // Find all overlapping active bookings
+    const bookings = await prisma.orderItem.findMany({
+      where: {
+        productId: id,
+        order: {
+          status: { not: 'CANCELLED' },
+        },
+        startDate: { lte: end },
+        endDate: { gte: start },
+      },
+    });
+
+    // Check blackout
+    const overlappingBlackout = await prisma.productAvailabilityBlackout.findFirst({
+      where: {
+        productId: id,
+        startDate: { lte: end },
+        endDate: { gte: start },
+      },
+    });
+
+    if (overlappingBlackout) {
+      return res.json({
+        totalStock,
+        bookedCount: totalStock,
+        availableStock: 0,
+        reason: 'Administrative blackout / maintenance',
+      });
+    }
+
+    // Find max booked units on any day in the range
+    let maxBookedQty = 0;
+    const day = new Date(start);
+    while (day <= end) {
+      let bookedQty = 0;
+      for (const booking of bookings) {
+        const bStart = new Date(booking.startDate);
+        bStart.setUTCHours(0, 0, 0, 0);
+        const bEnd = new Date(booking.endDate);
+        bEnd.setUTCHours(23, 59, 59, 999);
+        if (day >= bStart && day <= bEnd) {
+          bookedQty += booking.quantity;
+        }
+      }
+      if (bookedQty > maxBookedQty) {
+        maxBookedQty = bookedQty;
+      }
+      day.setUTCDate(day.getUTCDate() + 1);
+    }
+
+    const availableStock = Math.max(0, totalStock - maxBookedQty);
+
+    res.json({
+      totalStock,
+      bookedCount: maxBookedQty,
+      availableStock,
+    });
+  } catch (error) {
+    console.error('Fetch stock availability error:', error);
+    res.status(500).json({ error: 'Failed to fetch stock availability' });
+  }
+});
+
 // Admin/Vendor Add Product
 router.post(
   '/',
   authMiddleware,
   requireRole(['ADMIN', 'VENDOR']),
   async (req: Request, res: Response) => {
-    const { name, description, specs, dailyRate, weeklyRate, depositAmount, images, categoryId, vendorId } = req.body;
+    const { name, description, specs, dailyRate, weeklyRate, depositAmount, images, categoryId, vendorId, totalStock } = req.body;
 
     if (!name || !description || !specs || !dailyRate || !weeklyRate || !depositAmount || !images || !categoryId) {
       return res.status(400).json({ error: 'Missing required product fields' });
@@ -191,6 +288,7 @@ router.post(
           images,
           categoryId,
           vendorId: actualVendorId,
+          totalStock: totalStock !== undefined ? Number(totalStock) : 1,
         },
       });
 
@@ -231,6 +329,7 @@ router.put(
       if (updateData.dailyRate) updateData.dailyRate = Number(updateData.dailyRate);
       if (updateData.weeklyRate) updateData.weeklyRate = Number(updateData.weeklyRate);
       if (updateData.depositAmount) updateData.depositAmount = Number(updateData.depositAmount);
+      if (updateData.totalStock !== undefined) updateData.totalStock = Number(updateData.totalStock);
 
       const product = await prisma.product.update({
         where: { id },

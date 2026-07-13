@@ -55,6 +55,7 @@ export default function AdminDashboard() {
     images: 'https://images.unsplash.com/photo-1620662056087-f2533ed89e86?auto=format&fit=crop&w=600&q=80',
     categoryId: '',
     vendorId: '',
+    totalStock: '1',
   });
 
   // Blackout Date Form State
@@ -187,7 +188,7 @@ export default function AdminDashboard() {
       const order = orders.find(o => o.id === orderId);
       if (order && order.user.phone) {
         const firstItem = order.items[0]?.product?.name || 'Equipment Package';
-        const msg = `Hello ${order.user.name}, this is CineRent Operations. Your booking #${order.orderNumber} for the ${firstItem} is now updated to ${newStatus}. Refundable deposit holds will be updated on handback. Thank you!`;
+        const msg = `Hello ${order.user.name}, this is CameraRent Operations. Your booking #${order.orderNumber} for the ${firstItem} is now updated to ${newStatus}. Refundable deposit holds will be updated on handback. Thank you!`;
         const cleanPhone = order.user.phone.replace(/[^0-9+]/g, '');
         const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
         window.open(url, '_blank');
@@ -224,6 +225,7 @@ export default function AdminDashboard() {
           dailyRate: parseFloat(newProduct.dailyRate),
           weeklyRate: parseFloat(newProduct.weeklyRate),
           depositAmount: parseFloat(newProduct.depositAmount),
+          totalStock: parseInt(newProduct.totalStock) || 1,
         }),
       });
       alert('Product created successfully!');
@@ -236,6 +238,7 @@ export default function AdminDashboard() {
         dailyRate: '',
         weeklyRate: '',
         depositAmount: '',
+        totalStock: '1',
       }));
     } catch (err: any) {
       alert(`Failed to add product: ${err.message}`);
@@ -256,6 +259,7 @@ export default function AdminDashboard() {
           weeklyRate: parseFloat(editingProduct.weeklyRate),
           depositAmount: parseFloat(editingProduct.depositAmount),
           categoryId: editingProduct.categoryId,
+          totalStock: parseInt(editingProduct.totalStock) || 1,
         }),
       });
       alert('Product updated successfully!');
@@ -308,7 +312,7 @@ export default function AdminDashboard() {
     setWaPhone(order.user.phone || '+91');
     const firstItem = order.items[0]?.product?.name || 'Equipment Package';
     setWaMessage(
-      `Hello ${order.user.name}, this is CineRent Operations. Your booking #${order.orderNumber} for the ${firstItem} is now updated to ${order.status}. Refundable deposit holds will be updated on handback. Thank you!`
+      `Hello ${order.user.name}, this is CameraRent Operations. Your booking #${order.orderNumber} for the ${firstItem} is now updated to ${order.status}. Refundable deposit holds will be updated on handback. Thank you!`
     );
   };
 
@@ -633,7 +637,8 @@ export default function AdminDashboard() {
                           className="w-10 h-10 object-cover rounded-lg bg-slate-100 border border-slate-200"
                         />
                         <div>
-                          <p className="text-[10px] text-slate-400">{p.category.name} | Dep: ₹{p.depositAmount}</p>
+                          <h4 className="font-bold text-xs text-slate-800 leading-tight">{p.name}</h4>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{p.category.name} | Dep: ₹{p.depositAmount} | Stock: {p.totalStock}</p>
                         </div>
                       </div>
 
@@ -695,7 +700,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-4 gap-2">
                       <div>
                         <label className="block text-[10px] font-bold text-slate-400 mb-1">Daily (₹)</label>
                         <input
@@ -724,6 +729,17 @@ export default function AdminDashboard() {
                           onChange={(e) => setNewProduct({ ...newProduct, depositAmount: e.target.value })}
                           className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none"
                           required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Stock Qty</label>
+                        <input
+                          type="number"
+                          value={newProduct.totalStock}
+                          onChange={(e) => setNewProduct({ ...newProduct, totalStock: e.target.value })}
+                          className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none"
+                          required
+                          min="1"
                         />
                       </div>
                     </div>
@@ -1039,7 +1055,7 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 mb-1">Daily Rate (₹)</label>
                   <input
@@ -1068,6 +1084,17 @@ export default function AdminDashboard() {
                     onChange={(e) => setEditingProduct({ ...editingProduct, depositAmount: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none"
                     required
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Stock Qty</label>
+                  <input
+                    type="number"
+                    value={editingProduct.totalStock || '1'}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, totalStock: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none"
+                    required
+                    min="1"
                   />
                 </div>
               </div>

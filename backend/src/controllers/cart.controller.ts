@@ -28,7 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
     // Verify availability dynamically (in case of new bookings since adding to cart)
     const itemsWithAvailability = await Promise.all(
       items.map(async (item) => {
-        const check = await checkProductAvailability(item.productId, item.startDate, item.endDate);
+        const check = await checkProductAvailability(item.productId, item.startDate, item.endDate, item.quantity);
         
         // Calculate rental duration in days
         const diffTime = Math.abs(item.endDate.getTime() - item.startDate.getTime());
@@ -90,13 +90,7 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // 2. Verify availability
-    const check = await checkProductAvailability(productId, start, end);
-    if (!check.available) {
-      return res.status(400).json({ error: check.reason });
-    }
-
-    // 3. Check if identical item is already in cart for overlapping dates
+    // 2. Check if identical item is already in cart for overlapping dates
     const existingItem = await prisma.cartItem.findFirst({
       where: {
         userId,
@@ -105,6 +99,12 @@ router.post('/', async (req: Request, res: Response) => {
         endDate: end,
       },
     });
+
+    // 3. Verify availability (for the combined quantity if already in cart)
+    const check = await checkProductAvailability(productId, start, end, existingItem ? existingItem.quantity + qty : qty);
+    if (!check.available) {
+      return res.status(400).json({ error: check.reason });
+    }
 
     let cartItem;
     if (existingItem) {
@@ -154,12 +154,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.json({ message: 'Cart item removed successfully' });
     }
 
-    // If dates changed, check availability
-    if (startDate || endDate) {
-      const check = await checkProductAvailability(cartItem.productId, start, end);
-      if (!check.available) {
-        return res.status(400).json({ error: check.reason });
-      }
+    // If dates or quantity changed, check availability
+    const check = await checkProductAvailability(cartItem.productId, start, end, qty);
+    if (!check.available) {
+      return res.status(400).json({ error: check.reason });
     }
 
     const updated = await prisma.cartItem.update({

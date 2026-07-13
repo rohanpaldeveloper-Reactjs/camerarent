@@ -21,7 +21,7 @@ async function main() {
   // Create Users
   const adminUser = await prisma.user.create({
     data: {
-      email: 'admin@cinerent.com',
+      email: 'admin@camerarent.com',
       password: 'password123',
       name: 'Super Admin',
       role: 'ADMIN',
@@ -42,7 +42,7 @@ async function main() {
 
   const vendorUser1 = await prisma.user.create({
     data: {
-      email: 'apex@cinerent.com',
+      email: 'apex@camerarent.com',
       password: 'password123',
       name: 'Apex Rentals Owner',
       role: 'VENDOR',
@@ -52,7 +52,7 @@ async function main() {
 
   const vendorUser2 = await prisma.user.create({
     data: {
-      email: 'lenslight@cinerent.com',
+      email: 'lenslight@camerarent.com',
       password: 'password123',
       name: 'Lens & Light Owner',
       role: 'VENDOR',
@@ -124,6 +124,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1620662056087-f2533ed89e86?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor1.id,
       categoryId: categoriesMap['Cameras'],
+      totalStock: 5,
     },
     {
       name: 'RED Komodo 6K Starter Pack',
@@ -142,6 +143,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor1.id,
       categoryId: categoriesMap['Cameras'],
+      totalStock: 2,
     },
     {
       name: 'Canon EOS R5 C',
@@ -160,6 +162,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor2.id,
       categoryId: categoriesMap['Cameras'],
+      totalStock: 3,
     },
     {
       name: 'Sony FE 24-70mm f/2.8 GM II',
@@ -178,6 +181,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1617005082133-548c4dd27f35?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor1.id,
       categoryId: categoriesMap['Lenses'],
+      totalStock: 4,
     },
     {
       name: 'Canon RF 50mm f/1.2L USM',
@@ -196,6 +200,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1616423643764-7e57ba7950c2?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor2.id,
       categoryId: categoriesMap['Lenses'],
+      totalStock: 3,
     },
     {
       name: 'Aputure LS 600d Pro',
@@ -214,6 +219,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor2.id,
       categoryId: categoriesMap['Lights'],
+      totalStock: 2,
     },
     {
       name: 'Sennheiser MKH416 Shotgun Microphone',
@@ -231,6 +237,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor1.id,
       categoryId: categoriesMap['Audio'],
+      totalStock: 6,
     },
     {
       name: 'Sachtler Flowtech 75 Tripod System',
@@ -249,6 +256,7 @@ async function main() {
       images: 'https://images.unsplash.com/photo-1495707902641-75cac588d2e9?auto=format&fit=crop&w=600&q=80',
       vendorId: vendor1.id,
       categoryId: categoriesMap['Support'],
+      totalStock: 4,
     },
   ];
 

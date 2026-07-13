@@ -27,7 +27,7 @@ export default function ContactUs() {
           Support Center
         </span>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight font-sans">
-          Contact CineRent Crew
+          Contact CameraRent Crew
         </h1>
         <p className="text-sm text-slate-500">
           Have questions about equipment deposits, logistics, or custom rental quotes? Drop us a line.
@@ -50,7 +50,7 @@ export default function ContactUs() {
                 <div>
                   <h3 className="text-xs font-bold text-slate-800">General Support</h3>
                   <p className="text-xs text-slate-500 mt-0.5">For active order modifications & billing inquiries.</p>
-                  <span className="text-xs text-brand-600 font-bold mt-1 block">support@cinerent.com</span>
+                  <span className="text-xs text-brand-600 font-bold mt-1 block">support@camerarent.com</span>
                 </div>
               </div>
 

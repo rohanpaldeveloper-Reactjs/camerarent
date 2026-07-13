@@ -92,7 +92,7 @@ export default function Checkout() {
           <div className="p-3 bg-dark-bg/60 border border-dark-border rounded-xl font-mono text-[10px] text-slate-300 leading-normal space-y-1.5">
             <p><strong>To:</strong> John Doe (Customer)</p>
             <p className="text-[11px] text-slate-200">
-              "Hi John! Your CineRent booking <strong>#{orderNum}</strong> for total <strong>₹{grandTotal.toFixed(2)}</strong> (including ₹{depositTotal.toFixed(2)} deposit hold) has been registered. We'll update you once approved!"
+              "Hi John! Your CameraRent booking <strong>#{orderNum}</strong> for total <strong>₹{grandTotal.toFixed(2)}</strong> (including ₹{depositTotal.toFixed(2)} deposit hold) has been registered. We'll update you once approved!"
             </p>
           </div>
         </div>

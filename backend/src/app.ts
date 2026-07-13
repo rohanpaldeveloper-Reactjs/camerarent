@@ -21,7 +21,7 @@ app.use('/api/orders', orderRoutes);
 app.get('/', (req, res) => {
   res.json({
     status: 'online',
-    service: 'CineRent API Gateway',
+    service: 'CameraRent API Gateway',
     timestamp: new Date(),
   });
 });
@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({
     status: 'online',
-    service: 'CineRent API Gateway - Subendpoints Active',
+    service: 'CameraRent API Gateway - Subendpoints Active',
     timestamp: new Date(),
   });
 });

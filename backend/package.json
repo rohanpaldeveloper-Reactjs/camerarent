@@ -1,7 +1,7 @@
 {
-  "name": "cinerent-backend",
+  "name": "camerarent-backend",
   "version": "1.0.0",
-  "description": "Backend API for CineRent",
+  "description": "Backend API for CameraRent",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

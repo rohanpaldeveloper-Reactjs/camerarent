@@ -216,7 +216,7 @@ export default function Home() {
         <div className="bg-gradient-to-r from-blue-600 to-brand-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-white shadow-lg shadow-blue-500/10 border border-blue-400/15">
           <div className="space-y-1 text-center md:text-left">
             <span className="bg-white/20 text-white text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">Passive Earning</span>
-            <h3 className="text-lg md:text-xl font-extrabold tracking-tight mt-1">Fund CineRent's Creative Assets</h3>
+            <h3 className="text-lg md:text-xl font-extrabold tracking-tight mt-1">Fund CameraRent's Creative Assets</h3>
             <p className="text-xs text-blue-100">Rent out your redundant cameras, lens scopes, or lights and secure weekly bank payouts.</p>
           </div>
           <Link

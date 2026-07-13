@@ -22,6 +22,7 @@ interface Product {
   vendor: {
     name: string;
   };
+  totalStock: number;
 }
 
 export default function ProductDetail() {
@@ -41,6 +42,11 @@ export default function ProductDetail() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Stock Availability State
+  const [availableStock, setAvailableStock] = useState<number | null>(null);
+  const [stockLoading, setStockLoading] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
+
   // Fetch product detail
   useEffect(() => {
     async function loadProduct() {
@@ -56,6 +62,42 @@ export default function ProductDetail() {
     }
     if (slug) loadProduct();
   }, [slug]);
+
+  // Helper to format Date to YYYY-MM-DD
+  const formatDateStr = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  // Fetch range-based stock availability whenever dates change
+  useEffect(() => {
+    async function checkRangeStock() {
+      if (!product) return;
+      if (!startDate || !endDate) {
+        setAvailableStock(null);
+        return;
+      }
+      setStockLoading(true);
+      setStockError(null);
+      try {
+        const startStr = formatDateStr(startDate);
+        const endStr = formatDateStr(endDate);
+        const data = await apiRequest(`/products/${product.id}/stock-availability?startDate=${startStr}&endDate=${endStr}`);
+        setAvailableStock(data.availableStock);
+        // If current quantity is greater than available stock, automatically adjust it down (minimum 1)
+        if (quantity > data.availableStock) {
+          setQuantity(Math.max(1, data.availableStock));
+        }
+      } catch (err: any) {
+        setStockError(err.message || 'Failed to check stock availability');
+      } finally {
+        setStockLoading(false);
+      }
+    }
+    checkRangeStock();
+  }, [startDate, endDate, product]);
 
   if (loading) {
     return (
@@ -217,6 +259,37 @@ export default function ProductDetail() {
                 }}
               />
 
+              {/* Stock Indicator */}
+              {stockLoading ? (
+                <div className="text-xs text-slate-500 flex items-center gap-2 bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100 animate-pulse">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-500" />
+                  <span>Checking stock availability...</span>
+                </div>
+              ) : availableStock !== null ? (
+                availableStock > 0 ? (
+                  <div className="text-xs text-emerald-700 flex justify-between items-center bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-100/60 font-medium">
+                    <span>Stock Available:</span>
+                    <span className="font-extrabold">{availableStock} left for selected dates</span>
+                  </div>
+                ) : (
+                  <div className="text-xs text-red-600 flex justify-between items-center bg-red-50 px-4 py-2.5 rounded-xl border border-red-100/60 font-medium">
+                    <span>Stock Available:</span>
+                    <span className="font-extrabold text-red-700">Out of stock for selected dates!</span>
+                  </div>
+                )
+              ) : (
+                <div className="text-xs text-slate-500 flex justify-between items-center bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-100 font-medium">
+                  <span>Total Stock:</span>
+                  <span className="font-extrabold text-slate-800">{product.totalStock} units</span>
+                </div>
+              )}
+
+              {stockError && (
+                <div className="text-xs text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-100">
+                  {stockError}
+                </div>
+              )}
+
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   Quantity
@@ -224,14 +297,24 @@ export default function ProductDetail() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold"
+                    disabled={availableStock !== null && availableStock === 0}
+                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 flex items-center justify-center font-bold"
                   >
                     -
                   </button>
-                  <span className="text-sm font-bold w-4 text-center text-slate-800">{quantity}</span>
+                  <span className="text-sm font-bold w-4 text-center text-slate-800">
+                    {availableStock !== null && availableStock === 0 ? 0 : quantity}
+                  </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold"
+                    onClick={() => {
+                      if (availableStock !== null) {
+                        setQuantity(Math.min(availableStock, quantity + 1));
+                      } else {
+                        setQuantity(quantity + 1);
+                      }
+                    }}
+                    disabled={(availableStock !== null && quantity >= availableStock) || (availableStock !== null && availableStock === 0)}
+                    className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed text-slate-700 flex items-center justify-center font-bold"
                   >
                     +
                   </button>
@@ -240,7 +323,7 @@ export default function ProductDetail() {
             </div>
 
             {/* Dynamic Receipt preview */}
-            {startDate && endDate && (
+            {startDate && endDate && availableStock !== null && availableStock > 0 && (
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3 animate-fade-in text-xs">
                 <div className="flex justify-between font-semibold text-slate-700">
                   <span>Rental Days:</span>
@@ -287,11 +370,11 @@ export default function ProductDetail() {
               ) : (
                 <button
                   onClick={handleBooking}
-                  disabled={submitting || !startDate || !endDate}
+                  disabled={submitting || !startDate || !endDate || stockLoading || (availableStock !== null && availableStock === 0)}
                   className="w-full bg-brand-600 hover:bg-brand-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-100 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-md hover:scale-[1.01] active:scale-[0.99] border border-transparent transition cursor-pointer flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {!startDate || !endDate ? 'Select Dates First' : 'Add to Rental Cart'}
+                  {stockLoading ? 'Checking Stock...' : !startDate || !endDate ? 'Select Dates First' : (availableStock !== null && availableStock === 0 ? 'Out of Stock' : 'Add to Rental Cart')}
                 </button>
               )}
             </div>

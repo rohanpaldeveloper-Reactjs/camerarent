@@ -16,7 +16,7 @@ export default function VendorOnboarding() {
             Rent Out Your Production Gear
           </h1>
           <p className="text-xs md:text-sm text-slate-300">
-            List cameras, lenses, and support kits on CineRent. Earn steady revenue from vetted filmmakers.
+            List cameras, lenses, and support kits on CameraRent. Earn steady revenue from vetted filmmakers.
           </p>
         </div>
         <Link
@@ -30,7 +30,7 @@ export default function VendorOnboarding() {
 
       {/* Program Details */}
       <div className="space-y-6">
-        <h2 className="text-xl font-extrabold text-slate-900 text-center">Why Partner with CineRent?</h2>
+        <h2 className="text-xl font-extrabold text-slate-900 text-center">Why Partner with CameraRent?</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Card 1 */}

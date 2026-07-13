@@ -8,6 +8,7 @@ export async function checkProductAvailability(
   productId: string,
   startDate: Date,
   endDate: Date,
+  requestedQuantity: number = 1,
   excludeOrderId?: string
 ): Promise<{ available: boolean; reason?: string }> {
   // Normalize dates to UTC start of start-day and UTC end of end-day
@@ -20,6 +21,18 @@ export async function checkProductAvailability(
   if (start > end) {
     return { available: false, reason: 'Rental start date must be before the end date.' };
   }
+
+  // 0. Fetch product totalStock
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { totalStock: true, name: true },
+  });
+
+  if (!product) {
+    return { available: false, reason: 'Product not found.' };
+  }
+
+  const totalStock = product.totalStock;
 
   // 1. Check manual administrative blackout dates
   const overlappingBlackout = await prisma.productAvailabilityBlackout.findFirst({
@@ -38,7 +51,7 @@ export async function checkProductAvailability(
   }
 
   // 2. Check overlapping active bookings
-  const overlappingBooking = await prisma.orderItem.findFirst({
+  const bookings = await prisma.orderItem.findMany({
     where: {
       productId,
       order: {
@@ -48,16 +61,31 @@ export async function checkProductAvailability(
       startDate: { lte: end },
       endDate: { gte: start },
     },
-    include: {
-      order: true,
-    },
   });
 
-  if (overlappingBooking) {
-    return {
-      available: false,
-      reason: `Product is already rented from ${overlappingBooking.startDate.toISOString().split('T')[0]} to ${overlappingBooking.endDate.toISOString().split('T')[0]} (Order ${overlappingBooking.order.orderNumber}).`,
-    };
+  // Check day by day to see if booked quantity + requestedQuantity exceeds totalStock
+  const day = new Date(start);
+  while (day <= end) {
+    let bookedQty = 0;
+    for (const booking of bookings) {
+      const bStart = new Date(booking.startDate);
+      bStart.setUTCHours(0, 0, 0, 0);
+      const bEnd = new Date(booking.endDate);
+      bEnd.setUTCHours(23, 59, 59, 999);
+      if (day >= bStart && day <= bEnd) {
+        bookedQty += booking.quantity;
+      }
+    }
+
+    if (bookedQty + requestedQuantity > totalStock) {
+      const left = totalStock - bookedQty;
+      return {
+        available: false,
+        reason: `Only ${left >= 0 ? left : 0} items left in stock on ${day.toISOString().split('T')[0]} (Total: ${totalStock}, Rented: ${bookedQty}).`,
+      };
+    }
+
+    day.setUTCDate(day.getUTCDate() + 1);
   }
 
   return { available: true };
@@ -65,9 +93,18 @@ export async function checkProductAvailability(
 
 /**
  * Computes all unavailable dates (bookings and blackouts) for a given product.
+ * A date is unavailable if the product has a blackout on that date or if all stock is rented.
  * Returns an array of date strings formatted as "YYYY-MM-DD".
  */
 export async function getUnavailableDates(productId: string): Promise<string[]> {
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { totalStock: true },
+  });
+
+  if (!product) return [];
+  const totalStock = product.totalStock;
+
   const blackouts = await prisma.productAvailabilityBlackout.findMany({
     where: { productId },
   });
@@ -81,7 +118,7 @@ export async function getUnavailableDates(productId: string): Promise<string[]> 
     },
   });
 
-  const unavailableDates = new Set<string>();
+  const candidateDates = new Set<string>();
 
   const addRangeToSet = (start: Date, end: Date) => {
     const current = new Date(start);
@@ -89,15 +126,50 @@ export async function getUnavailableDates(productId: string): Promise<string[]> 
     const last = new Date(end);
     last.setUTCHours(0, 0, 0, 0);
 
-    // Loop through each day in range and add to set
     while (current <= last) {
-      unavailableDates.add(current.toISOString().split('T')[0]);
+      candidateDates.add(current.toISOString().split('T')[0]);
       current.setUTCDate(current.getUTCDate() + 1);
     }
   };
 
   blackouts.forEach((b) => addRangeToSet(b.startDate, b.endDate));
   bookings.forEach((b) => addRangeToSet(b.startDate, b.endDate));
+
+  const unavailableDates = new Set<string>();
+
+  for (const dateStr of candidateDates) {
+    const date = new Date(dateStr + 'T00:00:00.000Z');
+    
+    // Check blackout
+    const isBlackout = blackouts.some((b) => {
+      const bStart = new Date(b.startDate);
+      bStart.setUTCHours(0, 0, 0, 0);
+      const bEnd = new Date(b.endDate);
+      bEnd.setUTCHours(23, 59, 59, 999);
+      return date >= bStart && date <= bEnd;
+    });
+
+    if (isBlackout) {
+      unavailableDates.add(dateStr);
+      continue;
+    }
+
+    // Check sum of bookings on this date
+    let bookedQty = 0;
+    for (const booking of bookings) {
+      const bStart = new Date(booking.startDate);
+      bStart.setUTCHours(0, 0, 0, 0);
+      const bEnd = new Date(booking.endDate);
+      bEnd.setUTCHours(23, 59, 59, 999);
+      if (date >= bStart && date <= bEnd) {
+        bookedQty += booking.quantity;
+      }
+    }
+
+    if (bookedQty >= totalStock) {
+      unavailableDates.add(dateStr);
+    }
+  }
 
   return Array.from(unavailableDates).sort();
 }

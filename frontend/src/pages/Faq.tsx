@@ -62,7 +62,7 @@ export default function Faq() {
 
       {/* CTA helper */}
       <div className="bg-slate-100/50 border border-slate-200/50 rounded-3xl p-6 text-center text-xs text-slate-500 max-w-lg mx-auto leading-relaxed">
-        Still have questions or need assistance with a custom bulk rental package? Contact our dispatch crew at <a href="mailto:support@cinerent.com" className="text-brand-600 hover:underline font-bold">support@cinerent.com</a> or phone +91 (022) 555-0199.
+        Still have questions or need assistance with a custom bulk rental package? Contact our dispatch crew at <a href="mailto:support@camerarent.com" className="text-brand-600 hover:underline font-bold">support@camerarent.com</a> or phone +91 (022) 555-0199.
       </div>
 
     </div>

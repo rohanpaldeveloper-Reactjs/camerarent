@@ -14,11 +14,11 @@ export default function Footer() {
               <Camera className="w-4.5 h-4.5 text-white" />
             </div>
             <span className="font-extrabold text-base text-white tracking-tight">
-              CineRent
+              CameraRent
             </span>
           </Link>
           <p className="text-slate-500 leading-relaxed max-w-sm">
-            CineRent is a premium multivendor online marketplace where production crews can rent verified camera bodies, anamorphic lenses, lights, and grip support directly from local vetted suppliers.
+            CameraRent is a premium multivendor online marketplace where production crews can rent verified camera bodies, anamorphic lenses, lights, and grip support directly from local vetted suppliers.
           </p>
         </div>
 
@@ -47,10 +47,10 @@ export default function Footer() {
         {/* Column 3: Contact */}
         <div className="space-y-3">
           <h4 className="text-xs font-extrabold text-white uppercase tracking-wider">Contact Info</h4>
-          <p className="text-slate-500">CineRent Operations Team</p>
+          <p className="text-slate-500">CameraRent Operations Team</p>
           <p className="text-slate-500">Mumbai, Maharashtra, IN</p>
           <Link to="/contact" className="text-slate-300 font-semibold mt-1 block hover:text-brand-400">
-            support@cinerent.com
+            support@camerarent.com
           </Link>
         </div>
 
@@ -58,7 +58,7 @@ export default function Footer() {
 
       {/* Footer Bottom copyright bar */}
       <div className="max-w-7xl mx-auto px-6 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-600">
-        <p>© 2026 CineRent Inc. All rights reserved.</p>
+        <p>© 2026 CameraRent Inc. All rights reserved.</p>
         <div className="flex gap-4">
           <Link to="/policies" className="hover:text-slate-400">Privacy Policy</Link>
           <Link to="/policies" className="hover:text-slate-400">Terms of Use</Link>

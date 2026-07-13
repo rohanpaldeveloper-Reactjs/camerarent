@@ -50,7 +50,7 @@ router.post('/checkout', async (req: Request, res: Response) => {
 
     // Verify availability for all items in a transaction-safe way
     for (const item of cartItems) {
-      const check = await checkProductAvailability(item.productId, item.startDate, item.endDate);
+      const check = await checkProductAvailability(item.productId, item.startDate, item.endDate, item.quantity);
       if (!check.available) {
         return res.status(400).json({ 
           error: `Unavailable Product: ${item.product.name}`, 
@@ -368,7 +368,7 @@ router.put('/:id/status', requireRole(['ADMIN', 'VENDOR']), async (req: Request,
     });
     if (customer) {
       const firstItem = order.items[0]?.product?.name || 'Equipment';
-      const waMsg = `Hello ${customer.name}, your CineRent booking #${order.orderNumber} for the ${firstItem} has been updated to status: ${status}. Refundable deposit holds will be updated on handback. Thank you!`;
+      const waMsg = `Hello ${customer.name}, your CameraRent booking #${order.orderNumber} for the ${firstItem} has been updated to status: ${status}. Refundable deposit holds will be updated on handback. Thank you!`;
       console.log(`[WhatsApp API Automated Send] To ${customer.phone || 'N/A'}: "${waMsg}"`);
     }
 

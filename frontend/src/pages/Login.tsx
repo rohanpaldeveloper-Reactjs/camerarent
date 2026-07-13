@@ -43,7 +43,7 @@ export default function Login() {
             <Camera className="w-6 h-6 text-white" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight text-white font-sans">
-            Welcome back to CineRent
+            Welcome back to CameraRent
           </h2>
           <p className="text-sm text-slate-400 mt-2">
             Sign in to book camera gear & manage rentals
@@ -68,7 +68,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="customer@gmail.com or admin@cinerent.com"
+              placeholder="customer@gmail.com or admin@camerarent.com"
               className="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-slate-800 transition"
               required
             />
@@ -113,11 +113,11 @@ export default function Login() {
             <span>Pass: <strong className="text-slate-700">password123</strong></span>
           </div>
           <div className="flex justify-between">
-            <span>Super Admin: <strong className="text-slate-700">admin@cinerent.com</strong></span>
+            <span>Super Admin: <strong className="text-slate-700">admin@camerarent.com</strong></span>
             <span>Pass: <strong className="text-slate-700">password123</strong></span>
           </div>
           <div className="flex justify-between">
-            <span>Apex Vendor: <strong className="text-slate-700">apex@cinerent.com</strong></span>
+            <span>Apex Vendor: <strong className="text-slate-700">apex@camerarent.com</strong></span>
             <span>Pass: <strong className="text-slate-700">password123</strong></span>
           </div>
         </div>
