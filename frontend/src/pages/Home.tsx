@@ -35,6 +35,7 @@ export default function Home() {
   const [selectedCity, setSelectedCity] = useState('Mumbai');
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [rentalDates, setRentalDates] = useState({ start: '', end: '' });
+  const [showPromoModal, setShowPromoModal] = useState(false);
 
   // Fetch all products for front page arrivals & popular
   useEffect(() => {
@@ -324,77 +325,97 @@ export default function Home() {
         )}
       </div>
 
-      {/* 5. VALUE PROPOSITION: TRANSPARENT PRICES - ZERO SURPRISES */}
-      <div className="max-w-7xl mx-auto px-4 space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-slate-900">Transparent Pricing. <span className="text-brand-600">Zero Surprises</span></h2>
-          <p className="text-xs text-slate-500">No hidden fees, no unnecessary documentation holds, pure creator workflow.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-6 h-6 text-brand-600" />
-            </div>
-            <div>
-              <h4 className="font-extrabold text-sm text-slate-900">Zero Security Deposit</h4>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                For creative professionals with approved KYC documents, we bypass heavy security deposits holds. Zero holds, total freedom.
-              </p>
-            </div>
+      {/* 5. PROMO BANNER SECTION */}
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="relative rounded-[40px] bg-white border border-slate-100 shadow-xl overflow-hidden py-12 md:py-16 px-6 text-center flex flex-col items-center gap-6">
+          {/* Background Doodles */}
+          <div className="absolute top-4 left-6 text-slate-100 -rotate-12 select-none pointer-events-none hidden sm:block">
+            <Camera className="w-16 h-16 opacity-35 text-slate-250" />
+          </div>
+          <div className="absolute bottom-6 right-8 text-slate-105 rotate-12 select-none pointer-events-none hidden sm:block">
+            <Disc className="w-20 h-20 opacity-35 text-slate-250" />
+          </div>
+          <div className="absolute top-1/2 left-8 -translate-y-1/2 text-slate-105 -rotate-6 select-none pointer-events-none hidden lg:block">
+            <div className="text-4xl opacity-20 font-black text-slate-250">10%</div>
+          </div>
+          <div className="absolute top-6 right-16 text-slate-105 rotate-6 select-none pointer-events-none hidden lg:block">
+            <Lightbulb className="w-14 h-14 opacity-25 text-slate-250" />
+          </div>
+          <div className="absolute bottom-4 left-16 text-slate-105 rotate-45 select-none pointer-events-none hidden lg:block">
+            <Tv className="w-16 h-16 opacity-20 text-slate-250" />
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center shrink-0">
-              <Truck className="w-6 h-6 text-brand-600" />
-            </div>
-            <div>
-              <h4 className="font-extrabold text-sm text-slate-900">Free Logistics Returns</h4>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                We handle the heavy lifting. Pick up your packages at Bandra hub or select direct delivery options with zero surcharge penalties.
-              </p>
-            </div>
+          <div className="space-y-3 max-w-2xl z-10">
+            <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest block">
+              TURN YOUR IDEAS INTO REALITY. CREATE WITH PURPOSE.
+            </span>
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight tracking-tight font-sans">
+              Unlock 10% Off<br />On Your First Rental
+            </h2>
+            <p className="text-xs md:text-sm text-slate-500 font-medium leading-relaxed max-w-lg mx-auto">
+              Don’t miss this exclusive 10% off—rent your favorite gear today!
+            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center shrink-0">
-              <Award className="w-6 h-6 text-brand-600" />
+          {/* Premium Gradient Button with Arrow Icon */}
+          <button
+            onClick={() => setShowPromoModal(true)}
+            className="z-10 relative flex items-center justify-between gap-6 pl-8 pr-2.5 py-2.5 bg-gradient-to-r from-teal-400 to-indigo-650 hover:from-teal-500 hover:to-indigo-750 text-white font-extrabold text-sm md:text-base rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
+          >
+            <span>Claim Now!</span>
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md">
+              <ArrowRight className="w-4 h-4 text-indigo-650" />
             </div>
-            <div>
-              <h4 className="font-extrabold text-sm text-slate-900">100% Calibrated Gear</h4>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Every camera sensor is dust-cleaned, and lens elements are collimated before dispatching. Get verified working setups on every shoot.
-              </p>
-            </div>
-          </div>
+          </button>
         </div>
       </div>
 
-      {/* 6. WHY RENTING IS BETTER */}
-      <div className="max-w-7xl mx-auto px-4 space-y-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-black text-slate-900">Why Renting is <span className="text-brand-600">better</span>?</h2>
+      {/* 6. WHY CAMORENT */}
+      <div className="max-w-7xl mx-auto px-4 space-y-8">
+        <div className="text-center space-y-1">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">WHY CAMORENT</span>
+          <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">Trusted by Professionals Across the Globe</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/40 p-8 rounded-3xl border border-indigo-100 flex flex-col justify-between h-60">
-            <div>
-              <h4 className="font-black text-base text-indigo-900">Upgrade to the latest Tech</h4>
-              <p className="text-xs text-indigo-700/80 mt-1.5 leading-relaxed">
-                Camera bodies update every 18 months. Instead of taking on high equipment depreciation costs, rent the latest Sony FX3 or RED Raptor only when you shoot.
-              </p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-col items-center text-center gap-4 group">
+            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
+              <img src="/circle1.png" alt="Cost-Effective" className="w-full h-full object-cover" />
             </div>
-            <span className="text-[10px] text-indigo-600 font-extrabold uppercase tracking-widest">Hassle-Free Updates</span>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-slate-850">Cost-Effective</h4>
+              <p className="text-[11px] text-slate-400 font-medium">Save upto 80% on gear.</p>
+            </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/40 p-8 rounded-3xl border border-emerald-100 flex flex-col justify-between h-60">
-            <div>
-              <h4 className="font-black text-base text-emerald-900">Circular Creator Economy</h4>
-              <p className="text-xs text-emerald-700/80 mt-1.5 leading-relaxed">
-                Sharing equipment reduces global electronics waste. By renting from certified local filmmakers, you invest back into your creative community.
-              </p>
+          <div className="flex flex-col items-center text-center gap-4 group">
+            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
+              <img src="/circle2.png" alt="Flexibility" className="w-full h-full object-cover" />
             </div>
-            <span className="text-[10px] text-emerald-600 font-extrabold uppercase tracking-widest">Good for the Planet</span>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-slate-850">Flexibility</h4>
+              <p className="text-[11px] text-slate-400 font-medium">Rent what you need.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center text-center gap-4 group">
+            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
+              <img src="/circle3.png" alt="Latest Gear" className="w-full h-full object-cover" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-slate-850">Latest Gear</h4>
+              <p className="text-[11px] text-slate-400 font-medium">Access the latest tech.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center text-center gap-4 group">
+            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
+              <img src="/circle4.png" alt="Support" className="w-full h-full object-cover" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-extrabold text-sm text-slate-850">Support</h4>
+              <p className="text-[11px] text-slate-400 font-medium">24x7 hassle-free support.</p>
+            </div>
           </div>
         </div>
       </div>
