@@ -38,6 +38,7 @@ export default function Catalog() {
 
   // Read initial filter values from URL search parameters
   const categoryParam = searchParams.get('category') || 'all';
+  const subcategoryParam = searchParams.get('subcategory') || 'All';
   const searchParam = searchParams.get('search') || '';
   const startParam = searchParams.get('startDate') || '';
   const endParam = searchParams.get('endDate') || '';
@@ -45,6 +46,7 @@ export default function Catalog() {
   // Local state sync with URL params
   const [search, setSearch] = useState(searchParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(subcategoryParam);
   const [startDate, setStartDate] = useState(startParam);
   const [endDate, setEndDate] = useState(endParam);
 
@@ -52,6 +54,7 @@ export default function Catalog() {
   useEffect(() => {
     setSearch(searchParams.get('search') || '');
     setSelectedCategory(searchParams.get('category') || 'all');
+    setSelectedSubcategory(searchParams.get('subcategory') || 'All');
     setStartDate(searchParams.get('startDate') || '');
     setEndDate(searchParams.get('endDate') || '');
   }, [searchParams]);
@@ -84,6 +87,11 @@ export default function Catalog() {
         if (selectedCategory !== 'all') {
           queryParams.push(`category=${selectedCategory}`);
           urlParams.category = selectedCategory;
+
+          if (selectedSubcategory !== 'All') {
+            queryParams.push(`subcategory=${encodeURIComponent(selectedSubcategory)}`);
+            urlParams.subcategory = selectedSubcategory;
+          }
         }
         if (startDate) {
           queryParams.push(`startDate=${startDate}`);
@@ -112,11 +120,12 @@ export default function Catalog() {
     }, 200);
 
     return () => clearTimeout(delayDebounce);
-  }, [search, selectedCategory, startDate, endDate, setSearchParams]);
+  }, [search, selectedCategory, selectedSubcategory, startDate, endDate, setSearchParams]);
 
   const clearFilters = () => {
     setSearch('');
     setSelectedCategory('all');
+    setSelectedSubcategory('All');
     setStartDate('');
     setEndDate('');
     setSearchParams({}, { replace: true });
@@ -134,6 +143,16 @@ export default function Catalog() {
     }
   };
 
+  const getSubcategoriesForCategory = (slug: string) => {
+    if (slug === 'cameras') {
+      return ['All', 'Mirrorless Camera', 'Cinema Camera', 'Drone Camera', 'Action Camera'];
+    }
+    if (slug === 'lights') {
+      return ['All', 'Continuous Lights', 'Strobe Lights', 'Accessories'];
+    }
+    return [];
+  };
+
   return (
     <div className="space-y-8 bg-slate-50 min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 space-y-6">
@@ -148,14 +167,14 @@ export default function Catalog() {
             Equipment Rental Catalog
           </h1>
           <p className="text-xs text-slate-500">
-            Browse our vetted multivendor gear list. Configure dates to verify live availability.
+             Browse our vetted multivendor gear list. Configure dates to verify live availability.
           </p>
         </div>
 
         {/* 1. Category Selector */}
         <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex items-center justify-between overflow-x-auto gap-4 scrollbar-none">
           <button
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => { setSelectedCategory('all'); setSelectedSubcategory('All'); }}
             className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition min-w-[70px] cursor-pointer ${
               selectedCategory === 'all' ? 'bg-brand-50 border border-brand-200' : 'hover:bg-slate-50 border border-transparent'
             }`}
@@ -169,7 +188,7 @@ export default function Catalog() {
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => setSelectedCategory(cat.slug)}
+              onClick={() => { setSelectedCategory(cat.slug); setSelectedSubcategory('All'); }}
               className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition min-w-[80px] cursor-pointer ${
                 selectedCategory === cat.slug ? 'bg-brand-50 border border-brand-200' : 'hover:bg-slate-50 border border-transparent'
               }`}
@@ -185,7 +204,7 @@ export default function Catalog() {
           {['Monitors', 'Rigs', 'Batteries'].map((catName) => (
             <button
               key={catName}
-              onClick={() => setSelectedCategory(catName.toLowerCase())}
+              onClick={() => { setSelectedCategory(catName.toLowerCase()); setSelectedSubcategory('All'); }}
               className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition min-w-[80px] cursor-pointer ${
                 selectedCategory === catName.toLowerCase() ? 'bg-brand-50 border border-brand-200' : 'hover:bg-slate-50 border border-transparent'
               }`}
@@ -199,6 +218,25 @@ export default function Catalog() {
             </button>
           ))}
         </div>
+
+        {/* Subcategory Selector (Pills) */}
+        {selectedCategory !== 'all' && getSubcategoriesForCategory(selectedCategory).length > 0 && (
+          <div className="flex flex-wrap gap-2 py-1 items-center">
+            {getSubcategoriesForCategory(selectedCategory).map((sub) => (
+              <button
+                key={sub}
+                onClick={() => setSelectedSubcategory(sub)}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all duration-150 cursor-pointer ${
+                  selectedSubcategory === sub
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'bg-slate-200/80 text-slate-700 hover:bg-slate-300/80'
+                }`}
+              >
+                {sub}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* 2. Filter Bar */}
         <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">

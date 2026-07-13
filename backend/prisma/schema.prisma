@@ -64,6 +64,7 @@ model Product {
   vendor        Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   categoryId    String
   category      Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  subcategory   String?
   totalStock    Int       @default(1)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt

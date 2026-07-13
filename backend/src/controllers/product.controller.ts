@@ -20,7 +20,7 @@ router.get('/categories', async (req: Request, res: Response) => {
 
 // List all products with filters
 router.get('/', async (req: Request, res: Response) => {
-  const { category, vendorId, search, startDate, endDate } = req.query;
+  const { category, subcategory, vendorId, search, startDate, endDate } = req.query;
 
   try {
     const whereClause: any = {};
@@ -30,6 +30,11 @@ router.get('/', async (req: Request, res: Response) => {
       whereClause.category = {
         slug: category as string,
       };
+    }
+
+    // Subcategory Filter
+    if (subcategory) {
+      whereClause.subcategory = subcategory as string;
     }
 
     // 2. Vendor Filter
