@@ -315,6 +315,7 @@ export default function Catalog() {
                       src={product.images.split(',')[0]} 
                       alt={product.name} 
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
                     />
                     <span className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md text-[8px] text-white font-bold px-2 py-0.5 rounded-full border border-white/5 uppercase">
                       {product.category.name}

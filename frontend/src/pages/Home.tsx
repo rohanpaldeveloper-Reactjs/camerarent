@@ -292,6 +292,7 @@ export default function Home() {
                       src={p.images.split(',')[0]}
                       alt={p.name}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-10"
+                      loading="lazy"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
@@ -434,6 +435,7 @@ export default function Home() {
                       src={p.images.split(',')[0]}
                       alt={p.name}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-10"
+                      loading="lazy"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}

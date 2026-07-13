@@ -194,7 +194,7 @@ export default function ProductDetail() {
         {/* Left Side: Media & Spec sheet */}
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-white rounded-3xl overflow-hidden aspect-video border border-slate-100 shadow-sm flex items-center justify-center">
-            <img src={product.images.split(',')[0]} alt={product.name} className="object-cover w-full h-full" />
+            <img src={product.images.split(',')[0]} alt={product.name} className="object-cover w-full h-full" loading="lazy" />
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
