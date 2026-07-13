@@ -12,6 +12,7 @@ declare global {
         role: string; // "ADMIN", "CUSTOMER", "VENDOR"
         kycStatus: string;
         kycDocUrl: string | null;
+        phone: string | null;
         vendorProfile?: {
           id: string;
           name: string;
@@ -21,6 +22,10 @@ declare global {
   }
 }
 
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secure-camerarent-secret-key-2026';
+
 export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
@@ -28,18 +33,19 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     return res.status(401).json({ error: 'Authorization header is missing' });
   }
 
-  // Support "Bearer <userId>" or just "<userId>" directly
-  const userId = authHeader.startsWith('Bearer ') 
+  const token = authHeader.startsWith('Bearer ') 
     ? authHeader.slice(7).trim() 
     : authHeader.trim();
 
-  if (!userId) {
+  if (!token) {
     return res.status(401).json({ error: 'Invalid authorization token' });
   }
 
   try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string; role: string };
+
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: decoded.id },
       include: {
         vendorProfile: true,
       },
@@ -56,6 +62,7 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
       role: user.role,
       kycStatus: user.kycStatus,
       kycDocUrl: user.kycDocUrl,
+      phone: user.phone,
       vendorProfile: user.vendorProfile ? {
         id: user.vendorProfile.id,
         name: user.vendorProfile.name,
@@ -65,6 +72,9 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
+    if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ error: 'Session expired or invalid token. Please log in again.' });
+    }
     res.status(500).json({ error: 'Internal server authentication error' });
   }
 }

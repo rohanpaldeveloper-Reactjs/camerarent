@@ -4,21 +4,56 @@ import { authMiddleware, requireRole } from '../middleware/auth.middleware';
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
+
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 contact submissions per window
+  message: { error: 'Too many contact messages sent, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+function sanitizeHtml(str: string): string {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
 
 const router = Router();
 
 // Endpoint: Submit contact message (Public)
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', contactLimiter, async (req: Request, res: Response) => {
   const { name, email, subject, message } = req.body;
 
   if (!name || !email || !subject || !message) {
     return res.status(400).json({ error: 'All fields (name, email, subject, message) are required' });
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Invalid email address format' });
+  }
+
+  const cleanName = sanitizeHtml(name);
+  const cleanEmail = sanitizeHtml(email);
+  const cleanSubject = sanitizeHtml(subject);
+  const cleanMessage = sanitizeHtml(message);
+
   try {
     // 1. Save to SQLite database
     const contact = await prisma.contactMessage.create({
-      data: { name, email, subject, message },
+      data: { 
+        name: cleanName, 
+        email: cleanEmail, 
+        subject: cleanSubject, 
+        message: cleanMessage 
+      },
     });
 
     // 2. Build the styled HTML email template
@@ -56,22 +91,22 @@ router.post('/', async (req: Request, res: Response) => {
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f1f5f9; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: left;">
           <tr>
             <td style="padding-bottom: 12px; width: 100px; font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top;">Name</td>
-            <td style="padding-bottom: 12px; font-size: 13px; font-weight: 600; color: #0f172a; vertical-align: top;">${name}</td>
+            <td style="padding-bottom: 12px; font-size: 13px; font-weight: 600; color: #0f172a; vertical-align: top;">${cleanName}</td>
           </tr>
           <tr>
             <td style="padding-bottom: 12px; font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top;">Email</td>
             <td style="padding-bottom: 12px; font-size: 13px; font-weight: 600; color: #2563eb; vertical-align: top;">
-              <a href="mailto:${email}" style="color: #2563eb; text-decoration: none;">${email}</a>
+              <a href="mailto:${cleanEmail}" style="color: #2563eb; text-decoration: none;">${cleanEmail}</a>
             </td>
           </tr>
           <tr>
             <td style="padding-bottom: 12px; font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top;">Subject</td>
-            <td style="padding-bottom: 12px; font-size: 13px; font-weight: 600; color: #0f172a; vertical-align: top;">${subject}</td>
+            <td style="padding-bottom: 12px; font-size: 13px; font-weight: 600; color: #0f172a; vertical-align: top;">${cleanSubject}</td>
           </tr>
           <tr>
             <td style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; vertical-align: top; padding-top: 4px;">Message</td>
             <td style="font-size: 13px; color: #334155; line-height: 1.6; padding-top: 4px; vertical-align: top;">
-              ${message.replace(/\n/g, '<br>')}
+              ${cleanMessage.replace(/\n/g, '<br>')}
             </td>
           </tr>
         </table>
@@ -80,7 +115,7 @@ router.post('/', async (req: Request, res: Response) => {
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
           <tr>
             <td align="center">
-              <a href="mailto:${email}" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: bold; font-size: 13px; text-decoration: none; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(37 99 235 / 0.15);">
+              <a href="mailto:${cleanEmail}" style="display: inline-block; background-color: #2563eb; color: #ffffff; font-weight: bold; font-size: 13px; text-decoration: none; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(37 99 235 / 0.15);">
                 Reply Directly via Email
               </a>
             </td>
@@ -127,8 +162,8 @@ router.post('/', async (req: Request, res: Response) => {
       const info = await transporter.sendMail({
         from: '"CameraRent Support" <support@camerarent.com>',
         to: 'rohanpaldeveloper@gmail.com',
-        subject: `[Contact Form] ${subject}`,
-        text: `New message from ${name} (${email}): ${message}`,
+        subject: `[Contact Form] ${cleanSubject}`,
+        text: `New message from ${cleanName} (${cleanEmail}): ${cleanMessage}`,
         html: htmlContent,
       });
 

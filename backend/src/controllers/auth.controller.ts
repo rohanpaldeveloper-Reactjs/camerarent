@@ -1,11 +1,24 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../db';
 import { authMiddleware, requireRole } from '../middleware/auth.middleware';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import rateLimit from 'express-rate-limit';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secure-camerarent-secret-key-2026';
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: { error: 'Too many authentication attempts, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const router = Router();
 
 // Login
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', authLimiter, async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -20,18 +33,47 @@ router.post('/login', async (req: Request, res: Response) => {
       },
     });
 
-    if (!user || user.password !== password) {
+    if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    let isMatch = false;
+    const isHashed = user.password.startsWith('$2a$') || user.password.startsWith('$2b$');
+
+    if (isHashed) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      isMatch = user.password === password;
+      if (isMatch) {
+        // Upgrade legacy plain-text password to hashed password automatically
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { password: hashedPassword },
+        });
+      }
+    }
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Sign JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     res.json({
       message: 'Login successful',
-      token: user.id, // We use the userId directly as the token for our MVP simplification
+      token,
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
+        phone: user.phone,
         kycStatus: user.kycStatus,
         kycDocUrl: user.kycDocUrl,
         vendorProfile: user.vendorProfile ? {
@@ -47,7 +89,7 @@ router.post('/login', async (req: Request, res: Response) => {
 });
 
 // Signup
-router.post('/signup', async (req: Request, res: Response) => {
+router.post('/signup', authLimiter, async (req: Request, res: Response) => {
   const { email, password, name } = req.body;
 
   if (!email || !password || !name) {
@@ -60,24 +102,32 @@ router.post('/signup', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Email is already registered' });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
         email,
-        password,
+        password: hashedPassword,
         name,
         role: 'CUSTOMER',
         kycStatus: 'NONE',
       },
     });
 
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     res.status(201).json({
       message: 'User registered successfully',
-      token: user.id,
+      token,
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
         role: user.role,
+        phone: user.phone,
         kycStatus: user.kycStatus,
         kycDocUrl: null,
         vendorProfile: null,
@@ -109,7 +159,7 @@ router.put('/profile', authMiddleware, async (req: Request, res: Response) => {
       updateData.email = email;
     }
     if (phone !== undefined) updateData.phone = phone || null;
-    if (password) updateData.password = password;
+    if (password) updateData.password = await bcrypt.hash(password, 10);
 
     const updatedUser = await prisma.user.update({
       where: { id: req.user!.id },
@@ -245,11 +295,12 @@ router.post('/admin/users', authMiddleware, requireRole(['ADMIN']), async (req: 
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
-        password,
+        password: hashedPassword,
         phone: phone || null,
         role,
         kycStatus: role === 'ADMIN' ? 'APPROVED' : 'NONE',

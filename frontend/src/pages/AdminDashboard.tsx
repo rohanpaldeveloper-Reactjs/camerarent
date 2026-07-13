@@ -456,7 +456,7 @@ export default function AdminDashboard() {
                           <p className="text-[10px] text-brand-600 font-bold">Dep: ₹{o.totalDeposit.toFixed(2)}</p>
                         </td>
                         <td className="p-4">
-                          <p className="text-slate-600 max-w-[200px] line-clamp-1">{o.shippingAddress}</p>
+                          <p className="text-slate-600 max-w-[200px] line-clamp-1">{o.deliveryAddress}</p>
                         </td>
                         <td className="p-4">
                           <select

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../db';
 import { authMiddleware, requireRole } from '../middleware/auth.middleware';
 import { checkProductAvailability } from '../services/availability.service';
+import { sendWhatsAppMessage } from '../services/whatsapp.service';
 
 const router = Router();
 
@@ -135,15 +136,19 @@ router.post('/checkout', async (req: Request, res: Response) => {
       return order;
     });
 
-    // Simulate WhatsApp message (just logging in development)
-    console.log(`[WhatsApp API Mock] Order placed: ${orderNumber}`);
-    console.log(`To Customer: "Your order ${orderNumber} for total ₹${grandTotal.toFixed(2)} has been placed."`);
-    console.log(`To Admin/Ops: "New Order alert: ${orderNumber} from ${req.user!.name} for ₹${grandTotal.toFixed(2)}"`);
+    // Send WhatsApp notification
+    const customerPhone = req.user!.phone;
+    const waMsg = `Hello ${req.user!.name}, your CameraRent order #${orderNumber} for total ₹${grandTotal.toFixed(2)} has been placed successfully! We will coordinate the verification shortly. Thank you!`;
+    if (customerPhone) {
+      await sendWhatsAppMessage(customerPhone, waMsg);
+    } else {
+      console.log(`[WhatsApp API Automated Send] To N/A: "${waMsg}" (Customer has no phone number)`);
+    }
 
     res.status(201).json({
       message: 'Order placed successfully',
       order: result,
-      whatsappSimulated: true,
+      whatsappSimulated: !customerPhone,
     });
   } catch (error) {
     console.error('Checkout error:', error);
@@ -369,7 +374,11 @@ router.put('/:id/status', requireRole(['ADMIN', 'VENDOR']), async (req: Request,
     if (customer) {
       const firstItem = order.items[0]?.product?.name || 'Equipment';
       const waMsg = `Hello ${customer.name}, your CameraRent booking #${order.orderNumber} for the ${firstItem} has been updated to status: ${status}. Refundable deposit holds will be updated on handback. Thank you!`;
-      console.log(`[WhatsApp API Automated Send] To ${customer.phone || 'N/A'}: "${waMsg}"`);
+      if (customer.phone) {
+        await sendWhatsAppMessage(customer.phone, waMsg);
+      } else {
+        console.log(`[WhatsApp API Automated Send] To N/A: "${waMsg}" (Customer has no phone number)`);
+      }
     }
 
     res.json({
@@ -504,7 +513,17 @@ router.put('/admin/cancellations/:requestId', requireRole(['ADMIN']), async (req
       return updatedRequest;
     });
 
-    console.log(`[WhatsApp API Mock] Cancellation request for order ${request.order.orderNumber} resolved to ${statusValue}`);
+    const customer = await prisma.user.findUnique({
+      where: { id: request.order.userId }
+    });
+    if (customer) {
+      const waMsg = `Hello ${customer.name}, your cancellation request for order #${request.order.orderNumber} has been ${statusValue.toLowerCase()}. Thank you!`;
+      if (customer.phone) {
+        await sendWhatsAppMessage(customer.phone, waMsg);
+      } else {
+        console.log(`[WhatsApp API Automated Send] To N/A: "${waMsg}" (Customer has no phone number)`);
+      }
+    }
 
     res.json({
       message: `Cancellation request successfully ${action.toLowerCase()}d`,

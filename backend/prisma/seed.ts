@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -18,11 +19,13 @@ async function main() {
 
   console.log('Database cleaned.');
 
+  const hashedPassword = bcrypt.hashSync('password123', 10);
+
   // Create Users
   const adminUser = await prisma.user.create({
     data: {
       email: 'admin@camerarent.com',
-      password: 'password123',
+      password: hashedPassword,
       name: 'Super Admin',
       role: 'ADMIN',
       kycStatus: 'APPROVED',
@@ -32,7 +35,7 @@ async function main() {
   const customerUser = await prisma.user.create({
     data: {
       email: 'customer@gmail.com',
-      password: 'password123',
+      password: hashedPassword,
       name: 'John Doe',
       role: 'CUSTOMER',
       kycStatus: 'APPROVED',
@@ -43,7 +46,7 @@ async function main() {
   const vendorUser1 = await prisma.user.create({
     data: {
       email: 'apex@camerarent.com',
-      password: 'password123',
+      password: hashedPassword,
       name: 'Apex Rentals Owner',
       role: 'VENDOR',
       kycStatus: 'APPROVED',
@@ -53,7 +56,7 @@ async function main() {
   const vendorUser2 = await prisma.user.create({
     data: {
       email: 'lenslight@camerarent.com',
-      password: 'password123',
+      password: hashedPassword,
       name: 'Lens & Light Owner',
       role: 'VENDOR',
       kycStatus: 'APPROVED',
