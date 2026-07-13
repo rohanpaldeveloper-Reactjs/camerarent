@@ -4,6 +4,7 @@ import authRoutes from './controllers/auth.controller';
 import productRoutes from './controllers/product.controller';
 import cartRoutes from './controllers/cart.controller';
 import orderRoutes from './controllers/order.controller';
+import contactRoutes from './controllers/contact.controller';
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/contacts', contactRoutes);
 
 // Root/Health route
 app.get('/', (req, res) => {

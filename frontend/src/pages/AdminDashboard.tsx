@@ -24,8 +24,9 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [contactMessages, setContactMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'orders' | 'cancellations' | 'kyc' | 'products' | 'users'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'cancellations' | 'kyc' | 'products' | 'users' | 'inquiries'>('orders');
 
   // KYC pending users
   const [pendingKycUsers, setPendingKycUsers] = useState<any[]>([]);
@@ -97,6 +98,9 @@ export default function AdminDashboard() {
 
       const usersData = await apiRequest('/auth/admin/users');
       setUsers(usersData);
+
+      const contactsData = await apiRequest('/contacts');
+      setContactMessages(contactsData);
 
       if (catData.length > 0) {
         setNewProduct(prev => ({ ...prev, categoryId: catData[0].id }));
@@ -393,6 +397,7 @@ export default function AdminDashboard() {
           { id: 'kyc', label: 'KYC Requests', count: pendingKycUsers.length },
           { id: 'products', label: 'Inventory & Setup', count: products.length },
           { id: 'users', label: 'Users Manager', count: users.length },
+          { id: 'inquiries', label: 'User Inquiries', count: contactMessages.length },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -921,6 +926,53 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* TAB 6: USER INQUIRIES */}
+          {activeTab === 'inquiries' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center pb-2">
+                <h3 className="font-extrabold text-base text-slate-800">User Support Inquiries</h3>
+                <span className="text-xs text-slate-500 font-medium">
+                  Showing {contactMessages.length} submitted messages
+                </span>
+              </div>
+
+              {contactMessages.length === 0 ? (
+                <div className="bg-white rounded-3xl border border-slate-100 p-12 text-center text-slate-400 text-xs font-semibold">
+                  No support inquiries or contact messages found.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4">
+                  {contactMessages.map((msg) => (
+                    <div key={msg.id} className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4 text-left">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-50 pb-3">
+                        <div>
+                          <h4 className="font-extrabold text-sm text-slate-800">{msg.subject}</h4>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-slate-500 text-[11px] mt-1 font-semibold">
+                            <span>From: <strong className="text-slate-700">{msg.name}</strong> ({msg.email})</span>
+                          </div>
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-medium whitespace-nowrap bg-slate-50 px-2.5 py-1 rounded-full border border-slate-100">
+                          {new Date(msg.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-relaxed bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50 font-medium whitespace-pre-wrap">
+                        {msg.message}
+                      </p>
+                      <div className="flex justify-end pt-1">
+                        <a
+                          href={`mailto:${msg.email}?subject=RE: ${msg.subject}`}
+                          className="bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-100 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer"
+                        >
+                          Reply via Email
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

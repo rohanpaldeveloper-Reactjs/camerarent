@@ -1,21 +1,38 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from 'lucide-react';
+import { apiRequest } from '../utils/api';
 
 export default function ContactUs() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setName('');
-    setEmail('');
-    setSubject('');
-    setMessage('');
-    setTimeout(() => setSubmitted(false), 4000);
+    setLoading(true);
+    setError('');
+    setSubmitted(false);
+
+    try {
+      await apiRequest('/contacts', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, subject, message }),
+      });
+      setSubmitted(true);
+      setName('');
+      setEmail('');
+      setSubject('');
+      setMessage('');
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,7 +117,13 @@ export default function ContactUs() {
 
           {submitted && (
             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 animate-fade-in">
-              <MessageSquare className="w-4 h-4" /> Message sent successfully! Our crew will WhatsApp/email you shortly.
+              <MessageSquare className="w-4 h-4" /> Message sent successfully! Notification sent to operations.
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-2xl text-xs font-bold">
+              {error}
             </div>
           )}
 
@@ -155,9 +178,10 @@ export default function ContactUs() {
 
             <button
               type="submit"
-              className="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition cursor-pointer"
+              disabled={loading}
+              className="w-full bg-brand-600 hover:bg-brand-500 disabled:bg-brand-800 text-white font-bold text-xs py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition cursor-pointer"
             >
-              Send Message <Send className="w-4 h-4" />
+              {loading ? 'Sending Message...' : 'Send Message'} <Send className="w-4 h-4" />
             </button>
           </form>
         </div>
