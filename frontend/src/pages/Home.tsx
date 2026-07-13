@@ -64,6 +64,21 @@ export default function Home() {
     navigate(query);
   };
 
+  const handleClaimPromo = async () => {
+    try {
+      await apiRequest('/orders/first-discount-inquiry', { method: 'POST' });
+    } catch (err) {
+      console.error('Failed to trigger discount inquiry message:', err);
+    }
+
+    const supportPhone = '919999999999';
+    const supportMsg = "Hello camerarent, I’m renting for the first time. How can I avail the 10% off?";
+    const supportUrl = `https://wa.me/${supportPhone}?text=${encodeURIComponent(supportMsg)}`;
+    window.open(supportUrl, '_blank');
+
+    navigate('/catalog');
+  };
+
   const getCategoryIcon = (slug: string) => {
     switch (slug) {
       case 'cameras': return <Camera className="w-5 h-5 text-brand-600" />;
@@ -359,7 +374,7 @@ export default function Home() {
 
           {/* Premium Gradient Button with Arrow Icon */}
           <button
-            onClick={() => setShowPromoModal(true)}
+            onClick={handleClaimPromo}
             className="z-10 relative flex items-center justify-between gap-6 pl-8 pr-2.5 py-2.5 bg-gradient-to-r from-teal-400 to-indigo-650 hover:from-teal-500 hover:to-indigo-750 text-white font-extrabold text-sm md:text-base rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
           >
             <span>Claim Now!</span>

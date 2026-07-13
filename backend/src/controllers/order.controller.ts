@@ -97,8 +97,20 @@ router.post('/checkout', async (req: Request, res: Response) => {
       };
     });
 
-    const totalTax = totalRentalCost * 0.18; // 18% GST/VAT
-    const grandTotal = totalRentalCost + totalDeposit + totalTax;
+    // Check if user is placing their first order
+    const priorOrdersCount = await prisma.order.count({
+      where: { userId },
+    });
+    const isFirstOrder = priorOrdersCount === 0;
+
+    let discountAmount = 0;
+    if (isFirstOrder) {
+      discountAmount = totalRentalCost * 0.10;
+    }
+
+    const finalRentalCost = totalRentalCost - discountAmount;
+    const totalTax = finalRentalCost * 0.18; // 18% GST/VAT
+    const grandTotal = finalRentalCost + totalDeposit + totalTax;
 
     const orderNumber = generateOrderNumber();
 
@@ -110,7 +122,7 @@ router.post('/checkout', async (req: Request, res: Response) => {
           orderNumber,
           userId,
           status: 'PLACED',
-          totalRentalCost,
+          totalRentalCost: finalRentalCost,
           totalDeposit,
           totalTax,
           grandTotal,
@@ -138,7 +150,7 @@ router.post('/checkout', async (req: Request, res: Response) => {
 
     // Send WhatsApp notification
     const customerPhone = req.user!.phone;
-    const waMsg = `Hello ${req.user!.name}, your CameraRent order #${orderNumber} for total ₹${grandTotal.toFixed(2)} has been placed successfully! We will coordinate the verification shortly. Thank you!`;
+    const waMsg = `Hello ${req.user!.name}, your CameraRent order #${orderNumber} for total ₹${grandTotal.toFixed(2)} ${isFirstOrder ? '(including a 10% first-time discount!) ' : ''}has been placed successfully! We will coordinate the verification shortly. Thank you!`;
     if (customerPhone) {
       await sendWhatsAppMessage(customerPhone, waMsg);
     } else {
@@ -532,6 +544,24 @@ router.put('/admin/cancellations/:requestId', requireRole(['ADMIN']), async (req
   } catch (error) {
     console.error('Resolve cancellation error:', error);
     res.status(500).json({ error: 'Failed to resolve cancellation request' });
+  }
+});
+
+// 10. Trigger First-Time Discount WhatsApp Inquiry
+router.post('/first-discount-inquiry', async (req: Request, res: Response) => {
+  const customerPhone = req.user!.phone;
+  const waMsg = `Hello camerarent, I’m renting for the first time. How can I avail the 10% off?`;
+  
+  if (customerPhone) {
+    try {
+      const result = await sendWhatsAppMessage(customerPhone, waMsg);
+      return res.json({ success: true, message: 'Message sent successfully', result });
+    } catch (err: any) {
+      return res.status(550).json({ error: err.message || 'Failed to send WhatsApp message' });
+    }
+  } else {
+    console.log(`[WhatsApp API Simulated Send] To N/A: "${waMsg}"`);
+    return res.json({ success: true, message: 'Message simulated (User has no phone number)' });
   }
 });
 
