@@ -166,7 +166,7 @@ router.get('/', async (req: Request, res: Response) => {
     if (role === 'ADMIN') {
       orders = await prisma.order.findMany({
         include: {
-          user: { select: { name: true, email: true } },
+          user: { select: { name: true, email: true, phone: true } },
           items: { include: { product: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -186,7 +186,7 @@ router.get('/', async (req: Request, res: Response) => {
           },
         },
         include: {
-          user: { select: { name: true, email: true } },
+          user: { select: { name: true, email: true, phone: true } },
           items: { 
             where: { product: { vendorId: vendorProfile.id } }, // Filter down items visible to vendor
             include: { product: true },
@@ -453,7 +453,7 @@ router.get('/admin/cancellations', requireRole(['ADMIN']), async (req: Request, 
       include: {
         order: {
           include: {
-            user: { select: { name: true, email: true } },
+            user: { select: { name: true, email: true, phone: true } },
           },
         },
       },
