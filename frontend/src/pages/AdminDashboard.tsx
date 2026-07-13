@@ -55,6 +55,7 @@ export default function AdminDashboard() {
     depositAmount: '',
     images: 'https://images.unsplash.com/photo-1620662056087-f2533ed89e86?auto=format&fit=crop&w=600&q=80',
     categoryId: '',
+    subcategory: '',
     vendorId: '',
     totalStock: '1',
   });
@@ -123,6 +124,11 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   }
+
+  const getCategoryName = (id: string) => {
+    const found = categories.find((c) => c.id === id);
+    return found ? found.name : '';
+  };
 
   // 1. User management calls
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -242,6 +248,7 @@ export default function AdminDashboard() {
         dailyRate: '',
         weeklyRate: '',
         depositAmount: '',
+        subcategory: '',
         totalStock: '1',
       }));
     } catch (err: any) {
@@ -263,6 +270,7 @@ export default function AdminDashboard() {
           weeklyRate: parseFloat(editingProduct.weeklyRate),
           depositAmount: parseFloat(editingProduct.depositAmount),
           categoryId: editingProduct.categoryId,
+          subcategory: editingProduct.subcategory || null,
           totalStock: parseInt(editingProduct.totalStock) || 1,
         }),
       });
@@ -680,7 +688,7 @@ export default function AdminDashboard() {
                     <Layers className="w-4 h-4 text-brand-600" /> Create New Equipment Listing
                   </h3>
                   <form onSubmit={handleCreateProduct} className="space-y-3.5 text-xs">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <div>
                         <label className="block text-[10px] font-bold text-slate-400 mb-1">Equipment Name</label>
                         <input
@@ -695,13 +703,48 @@ export default function AdminDashboard() {
                         <label className="block text-[10px] font-bold text-slate-400 mb-1">Category</label>
                         <select
                           value={newProduct.categoryId}
-                          onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value })}
+                          onChange={(e) => setNewProduct({ ...newProduct, categoryId: e.target.value, subcategory: '' })}
                           className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none font-semibold"
                         >
                           {categories.map((c) => (
                             <option key={c.id} value={c.id}>{c.name}</option>
                           ))}
                         </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Subcategory</label>
+                        {getCategoryName(newProduct.categoryId) === 'Cameras' ? (
+                          <select
+                            value={newProduct.subcategory}
+                            onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}
+                            className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none font-semibold"
+                          >
+                            <option value="">None</option>
+                            <option value="Mirrorless Camera">Mirrorless Camera</option>
+                            <option value="Cinema Camera">Cinema Camera</option>
+                            <option value="Drone Camera">Drone Camera</option>
+                            <option value="Action Camera">Action Camera</option>
+                          </select>
+                        ) : getCategoryName(newProduct.categoryId) === 'Lights' ? (
+                          <select
+                            value={newProduct.subcategory}
+                            onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}
+                            className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none font-semibold"
+                          >
+                            <option value="">None</option>
+                            <option value="Continuous Lights">Continuous Lights</option>
+                            <option value="Strobe Lights">Strobe Lights</option>
+                            <option value="Accessories">Accessories</option>
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            value={newProduct.subcategory}
+                            onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}
+                            placeholder="e.g. Zoom (optional)"
+                            className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none"
+                          />
+                        )}
                       </div>
                     </div>
 
@@ -1082,7 +1125,7 @@ export default function AdminDashboard() {
             </h3>
 
             <form onSubmit={handleUpdateProduct} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 mb-1">Equipment Name</label>
                   <input
@@ -1097,13 +1140,48 @@ export default function AdminDashboard() {
                   <label className="block text-[10px] font-bold text-slate-400 mb-1">Category</label>
                   <select
                     value={editingProduct.categoryId}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, categoryId: e.target.value })}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, categoryId: e.target.value, subcategory: '' })}
                     className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none font-semibold"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 mb-1">Subcategory</label>
+                  {getCategoryName(editingProduct.categoryId) === 'Cameras' ? (
+                    <select
+                      value={editingProduct.subcategory || ''}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, subcategory: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none font-semibold"
+                    >
+                      <option value="">None</option>
+                      <option value="Mirrorless Camera">Mirrorless Camera</option>
+                      <option value="Cinema Camera">Cinema Camera</option>
+                      <option value="Drone Camera">Drone Camera</option>
+                      <option value="Action Camera">Action Camera</option>
+                    </select>
+                  ) : getCategoryName(editingProduct.categoryId) === 'Lights' ? (
+                    <select
+                      value={editingProduct.subcategory || ''}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, subcategory: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none font-semibold"
+                    >
+                      <option value="">None</option>
+                      <option value="Continuous Lights">Continuous Lights</option>
+                      <option value="Strobe Lights">Strobe Lights</option>
+                      <option value="Accessories">Accessories</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      value={editingProduct.subcategory || ''}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, subcategory: e.target.value })}
+                      placeholder="e.g. Zoom (optional)"
+                      className="w-full bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-slate-700 focus:outline-none"
+                    />
+                  )}
                 </div>
               </div>
 

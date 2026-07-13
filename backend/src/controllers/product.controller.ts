@@ -260,7 +260,7 @@ router.post(
   authMiddleware,
   requireRole(['ADMIN', 'VENDOR']),
   async (req: Request, res: Response) => {
-    const { name, description, specs, dailyRate, weeklyRate, depositAmount, images, categoryId, vendorId, totalStock } = req.body;
+    const { name, description, specs, dailyRate, weeklyRate, depositAmount, images, categoryId, subcategory, vendorId, totalStock } = req.body;
 
     if (!name || !description || !specs || !dailyRate || !weeklyRate || !depositAmount || !images || !categoryId) {
       return res.status(400).json({ error: 'Missing required product fields' });
@@ -292,6 +292,7 @@ router.post(
           depositAmount: Number(depositAmount),
           images,
           categoryId,
+          subcategory: subcategory || null,
           vendorId: actualVendorId,
           totalStock: totalStock !== undefined ? Number(totalStock) : 1,
         },
@@ -335,6 +336,9 @@ router.put(
       if (updateData.weeklyRate) updateData.weeklyRate = Number(updateData.weeklyRate);
       if (updateData.depositAmount) updateData.depositAmount = Number(updateData.depositAmount);
       if (updateData.totalStock !== undefined) updateData.totalStock = Number(updateData.totalStock);
+      if (updateData.subcategory !== undefined) {
+        updateData.subcategory = updateData.subcategory || null;
+      }
 
       const product = await prisma.product.update({
         where: { id },
