@@ -270,6 +270,7 @@ router.get('/admin/users', authMiddleware, requireRole(['ADMIN']), async (req: R
         phone: true,
         role: true,
         kycStatus: true,
+        kycDocUrl: true,
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Search, Camera, Disc, Lightbulb, Mic, Tv, Cpu, Battery, 
-  Star, CheckCircle2, ArrowRight, ChevronRight, Sparkles, ShieldCheck, 
+import {
+  Search, Camera, Disc, Lightbulb, Mic, Tv, Cpu, Battery,
+  Star, CheckCircle2, ArrowRight, ChevronRight, Sparkles, ShieldCheck,
   Truck, HelpCircle, MapPin, Calendar, Heart, Award
 } from 'lucide-react';
 import { apiRequest } from '../utils/api';
@@ -29,7 +29,7 @@ export default function Home() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Search & Navigation States
   const [searchText, setSearchText] = useState('');
   const [selectedCity, setSelectedCity] = useState('Mumbai');
@@ -97,19 +97,19 @@ export default function Home() {
 
   return (
     <div className="bg-slate-50 min-h-screen text-slate-800 space-y-16 pb-20">
-      
+
       {/* 1. INTERACTIVE HERO SECTION */}
       <div className="max-w-7xl mx-auto px-4 pt-8">
         <div className="relative rounded-3xl bg-gradient-to-br from-slate-900 via-slate-850 to-indigo-950 p-8 md:p-16 overflow-hidden shadow-2xl border border-white/5 text-white flex flex-col items-center text-center gap-8">
-          
+
           {/* Animated Background Lights */}
           <div className="absolute top-0 left-1/4 w-80 h-80 bg-brand-500/10 rounded-full blur-3xl animate-pulse-gentle"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-500/5 rounded-full blur-3xl animate-pulse-gentle delay-700"></div>
 
           {/* Floating Camera Badges/Visual Teasers */}
           <div className="absolute right-6 top-8 hidden xl:flex flex-col gap-3 bg-white/5 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 shadow-lg scale-90 hover:scale-95 transition-all duration-300">
-            <img 
-              src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=150&q=80" 
+            <img
+              src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=150&q=80"
               alt="Sony FX3"
               className="w-24 h-16 object-cover rounded-lg"
             />
@@ -120,8 +120,8 @@ export default function Home() {
           </div>
 
           <div className="absolute left-6 bottom-8 hidden xl:flex flex-col gap-3 bg-white/5 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 shadow-lg scale-90 hover:scale-95 transition-all duration-300">
-            <img 
-              src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=150&q=80" 
+            <img
+              src="https://images.unsplash.com/photo-1527977966376-1c8408f9f108?auto=format&fit=crop&w=150&q=80"
               alt="DJI Drone"
               className="w-24 h-16 object-cover rounded-lg"
             />
@@ -146,13 +146,13 @@ export default function Home() {
           </div>
 
           {/* FLOATING SEARCH / FILTER DECK PILL */}
-          <form 
-            onSubmit={handleSearchSubmit} 
+          <form
+            onSubmit={handleSearchSubmit}
             className="w-full max-w-4xl bg-white text-slate-800 rounded-3xl p-3 shadow-2xl flex flex-col lg:flex-row gap-2.5 z-20 border border-slate-100"
           >
             {/* City Selector */}
-            <div className="relative flex items-center px-4 py-2 hover:bg-slate-50 rounded-2xl cursor-pointer transition shrink-0 border-b lg:border-b-0 lg:border-r border-slate-100">
-              <div 
+            {/* <div className="relative flex items-center px-4 py-2 hover:bg-slate-50 rounded-2xl cursor-pointer transition shrink-0 border-b lg:border-b-0 lg:border-r border-slate-100">
+              <div
                 className="flex items-center gap-2 w-full justify-between lg:justify-start"
                 onClick={() => setShowCityDropdown(!showCityDropdown)}
               >
@@ -176,10 +176,10 @@ export default function Home() {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Date Picker Range Picker */}
-            <div className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 rounded-2xl transition flex-1 border-b lg:border-b-0 lg:border-r border-slate-100">
+            {/* <div className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 rounded-2xl transition flex-1 border-b lg:border-b-0 lg:border-r border-slate-100">
               <Calendar className="w-4 h-4 text-brand-600 shrink-0" />
               <div className="grid grid-cols-2 gap-2 text-left w-full">
                 <div>
@@ -201,7 +201,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* General Search Input */}
             <div className="flex items-center gap-2 flex-1 px-4 py-2 rounded-2xl hover:bg-slate-50 transition border-b lg:border-b-0 border-slate-100 lg:border-none">

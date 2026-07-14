@@ -379,13 +379,13 @@ router.put('/:id/status', requireRole(['ADMIN', 'VENDOR']), async (req: Request,
       data: { status },
     });
 
-    // Retrieve customer user details for mock WhatsApp dispatch
+    // Retrieve customer user details for automated WhatsApp dispatch
     const customer = await prisma.user.findUnique({
       where: { id: order.userId }
     });
     if (customer) {
-      const firstItem = order.items[0]?.product?.name || 'Equipment';
-      const waMsg = `Hello ${customer.name}, your CameraRent booking #${order.orderNumber} for the ${firstItem} has been updated to status: ${status}. Refundable deposit holds will be updated on handback. Thank you!`;
+      const itemsList = order.items?.map((item: any) => `• ${item.product?.name || 'Equipment'} (Qty: ${item.quantity})`).join('\n') || '• Equipment Package (Qty: 1)';
+      const waMsg = `Hello ${customer.name}, your CameraRent booking #${order.orderNumber} has been updated to status: ${status}.\n\nItems:\n${itemsList}\n\nRefundable deposit holds will be updated on handback. Thank you!`;
       if (customer.phone) {
         await sendWhatsAppMessage(customer.phone, waMsg);
       } else {

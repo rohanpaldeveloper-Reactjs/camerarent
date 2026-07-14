@@ -5,6 +5,9 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    font-size: 108%; /* Globally scales all font sizes by ~8% */
+  }
   body {
     @apply bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white;
   }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   BarChart3, Package, Users, ShieldAlert, BadgeDollarSign, RefreshCw,
   Layers, Calendar, ClipboardCheck, Ban, Sparkles, Trash2, Edit2,
-  MessageSquare, UserPlus, X, Send, PhoneCall
+  MessageSquare, UserPlus, X, Send, PhoneCall, Eye, FileText, ExternalLink
 } from 'lucide-react';
 import { apiRequest } from '../utils/api';
 
@@ -35,6 +35,8 @@ export default function AdminDashboard() {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [whatsappOrder, setWhatsappOrder] = useState<any | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [selectedOrderLoading, setSelectedOrderLoading] = useState(false);
 
   // User Add Form State
   const [newUser, setNewUser] = useState({
@@ -193,21 +195,35 @@ export default function AdminDashboard() {
         method: 'PUT',
         body: JSON.stringify({ status: newStatus }),
       });
-      
-      // Auto-trigger WhatsApp dispatch message
-      const order = orders.find(o => o.id === orderId);
-      if (order && order.user.phone) {
-        const firstItem = order.items[0]?.product?.name || 'Equipment Package';
-        const msg = `Hello ${order.user.name}, this is CameraRent Operations. Your booking #${order.orderNumber} for the ${firstItem} is now updated to ${newStatus}. Refundable deposit holds will be updated on handback. Thank you!`;
-        const cleanPhone = order.user.phone.replace(/[^0-9+]/g, '');
-        const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-        window.open(url, '_blank');
+
+      // Keep selected order modal state in sync if open
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status: newStatus });
       }
 
       alert(`Order status updated to ${newStatus}`);
       loadAdminData();
     } catch (err: any) {
       alert(`Failed to update status: ${err.message}`);
+    }
+  };
+
+  const handleViewOrderDetails = async (orderId: string) => {
+    setSelectedOrderLoading(true);
+    try {
+      // Use local order details if available and populated
+      const existing = orders.find(o => o.id === orderId);
+      if (existing && existing.items && existing.items.length > 0) {
+        setSelectedOrder(existing);
+      } else {
+        const orderData = await apiRequest(`/orders/${orderId}`);
+        setSelectedOrder(orderData);
+      }
+    } catch (err: any) {
+      alert(`Failed to load order details: ${err.message}`);
+      console.error(err);
+    } finally {
+      setSelectedOrderLoading(false);
     }
   };
 
@@ -322,9 +338,9 @@ export default function AdminDashboard() {
   const openWhatsappModal = (order: any) => {
     setWhatsappOrder(order);
     setWaPhone(order.user.phone || '+91');
-    const firstItem = order.items[0]?.product?.name || 'Equipment Package';
+    const itemsList = order.items?.map((item: any) => `• ${item.product?.name || 'Equipment'} (Qty: ${item.quantity})`).join('\n') || '• Equipment Package (Qty: 1)';
     setWaMessage(
-      `Hello ${order.user.name}, this is CameraRent Operations. Your booking #${order.orderNumber} for the ${firstItem} is now updated to ${order.status}. Refundable deposit holds will be updated on handback. Thank you!`
+      `Hello ${order.user.name}, this is CameraRent Operations. Your booking #${order.orderNumber} is now updated to ${order.status}.\n\nItems:\n${itemsList}\n\nRefundable deposit holds will be updated on handback. Thank you!`
     );
   };
 
@@ -444,24 +460,29 @@ export default function AdminDashboard() {
                       <th className="p-4 font-bold">Rental Cost</th>
                       <th className="p-4 font-bold">Address</th>
                       <th className="p-4 font-bold">Status & Action</th>
-                      <th className="p-4 font-bold text-center">Alerts</th>
+                      <th className="p-4 font-bold text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {orders.map((o) => (
                       <tr key={o.id} className="hover:bg-slate-50/50">
                         <td className="p-4">
-                          <p className="font-bold text-slate-800 font-mono">{o.orderNumber}</p>
-                          <p className="text-[10px] text-slate-400">Date: {new Date(o.createdAt).toLocaleDateString()}</p>
+                          <button
+                            onClick={() => handleViewOrderDetails(o.id)}
+                            className="font-bold text-brand-600 hover:text-brand-700 hover:underline font-mono text-left cursor-pointer transition focus:outline-none"
+                          >
+                            {o.orderNumber}
+                          </button>
+                          <p className="text-[12px] text-slate-400 mt-0.5">Date: {new Date(o.createdAt).toLocaleDateString()}</p>
                         </td>
                         <td className="p-4">
                           <p className="font-semibold text-slate-700">{o.user.name}</p>
-                          <p className="text-[10px] text-slate-400">{o.user.email}</p>
-                          {o.user.phone && <p className="text-[9px] text-slate-400 font-bold">{o.user.phone}</p>}
+                          <p className="text-[12px] text-slate-400">{o.user.email}</p>
+                          {o.user.phone && <p className="text-[11px] text-slate-400 font-bold">{o.user.phone}</p>}
                         </td>
                         <td className="p-4">
                           <p className="font-bold text-slate-800">₹{o.grandTotal.toFixed(2)}</p>
-                          <p className="text-[10px] text-brand-600 font-bold">Dep: ₹{o.totalDeposit.toFixed(2)}</p>
+                          <p className="text-[12px] text-brand-600 font-bold">Dep: ₹{o.totalDeposit.toFixed(2)}</p>
                         </td>
                         <td className="p-4">
                           <p className="text-slate-600 max-w-[200px] line-clamp-1">{o.deliveryAddress}</p>
@@ -470,7 +491,7 @@ export default function AdminDashboard() {
                           <select
                             value={o.status}
                             onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value)}
-                            className={`border border-slate-200 rounded-lg p-1.5 focus:outline-none text-[11px] font-bold ${getStatusColor(o.status)}`}
+                            className={`border border-slate-200 rounded-lg p-1.5 focus:outline-none text-[13px] font-bold ${getStatusColor(o.status)}`}
                           >
                             <option value="PLACED">PLACED</option>
                             <option value="APPROVED">APPROVED</option>
@@ -482,13 +503,22 @@ export default function AdminDashboard() {
                           </select>
                         </td>
                         <td className="p-4 text-center">
-                          <button
-                            onClick={() => openWhatsappModal(o)}
-                            className="p-2 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition"
-                            title="Notify Customer on WhatsApp"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() => handleViewOrderDetails(o.id)}
+                              className="p-2 bg-brand-50 text-brand-600 hover:bg-brand-100 rounded-lg transition cursor-pointer"
+                              title="View Order Details"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => openWhatsappModal(o)}
+                              className="p-2 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition cursor-pointer"
+                              title="Notify Customer on WhatsApp"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -521,7 +551,12 @@ export default function AdminDashboard() {
                       cancellations.map((c) => (
                         <tr key={c.id} className="hover:bg-slate-50/50">
                           <td className="p-4">
-                            <p className="font-bold text-slate-800 font-mono">{c.order.orderNumber}</p>
+                            <button
+                              onClick={() => handleViewOrderDetails(c.order.id)}
+                              className="font-bold text-brand-600 hover:text-brand-700 hover:underline font-mono text-left cursor-pointer transition focus:outline-none"
+                            >
+                              {c.order.orderNumber}
+                            </button>
                           </td>
                           <td className="p-4 text-slate-600">
                             {new Date(c.createdAt).toLocaleDateString()}
@@ -1309,6 +1344,232 @@ export default function AdminDashboard() {
                 Open WhatsApp Web <Send className="w-4 h-4" />
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: ORDER DETAILS VIEW */}
+      {selectedOrder && (
+        <div 
+          onClick={() => setSelectedOrder(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 relative shadow-2xl border border-slate-100 animate-fade-in flex flex-col cursor-default font-sans"
+          >
+            
+            {/* Modal Header */}
+            <div className="flex justify-between items-start pb-4 border-b border-slate-100 mb-6">
+              <div>
+                <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
+                  <ClipboardCheck className="w-5 h-5 text-brand-600" /> Order Details
+                </h3>
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  <span className="font-mono text-xs font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+                    {selectedOrder.orderNumber}
+                  </span>
+                  <span className="text-[12px] text-slate-400 font-semibold">
+                    Placed: {new Date(selectedOrder.createdAt).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="p-1 rounded-lg hover:bg-slate-50 text-slate-400 hover:text-slate-700 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="space-y-6 flex-1 text-sm">
+              
+              {/* Order Info & Cost Breakdown Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {/* Left Column: Customer & Delivery */}
+                <div className="space-y-4">
+                  {/* Customer Information */}
+                  <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-4 space-y-2.5">
+                    <h4 className="font-extrabold text-slate-900 text-xs flex items-center gap-1.5 border-b border-slate-150 pb-1.5">
+                      <Users className="w-4 h-4 text-slate-500" /> Customer Information
+                    </h4>
+                    <div className="space-y-1 text-[13px]">
+                      <p className="text-slate-800"><strong className="text-slate-500 font-normal">Name:</strong> {selectedOrder.user?.name}</p>
+                      <p className="text-slate-800"><strong className="text-slate-500 font-normal">Email:</strong> {selectedOrder.user?.email}</p>
+                      <p className="text-slate-800"><strong className="text-slate-500 font-normal">Phone:</strong> {selectedOrder.user?.phone || 'N/A'}</p>
+                    </div>
+
+                    {/* KYC Section */}
+                    {selectedOrder.kycDocUrl && (
+                      <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between">
+                        <span className="text-[12px] font-bold text-slate-400 uppercase tracking-wider">KYC Document</span>
+                        <a
+                          href={selectedOrder.kycDocUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1 text-[13px] cursor-pointer"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" /> View Document
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Delivery Details */}
+                  <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-4 space-y-2.5">
+                    <h4 className="font-extrabold text-slate-900 text-xs flex items-center gap-1.5 border-b border-slate-150 pb-1.5">
+                      <Package className="w-4 h-4 text-slate-500" /> Shipping & Delivery
+                    </h4>
+                    <div className="space-y-1">
+                      <p className="text-slate-800 font-semibold leading-relaxed">
+                        <strong className="text-slate-500 font-normal">Address:</strong> {selectedOrder.deliveryAddress}
+                      </p>
+                      {selectedOrder.deliveryDetails && (
+                        <p className="text-slate-600 bg-white/80 p-2 rounded-lg border border-slate-100 mt-2 italic leading-relaxed text-[13px]">
+                          <strong className="text-slate-500 not-italic block text-[12px] font-bold uppercase tracking-wider mb-0.5">Instructions:</strong>
+                          "{selectedOrder.deliveryDetails}"
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Status & Costs */}
+                <div className="space-y-4 text-[13px]">
+                  {/* Status update box */}
+                  <div className="bg-slate-50/60 border border-slate-100 rounded-2xl p-4 space-y-3">
+                    <h4 className="font-extrabold text-slate-900 text-xs border-b border-slate-150 pb-1.5">
+                      Order Status & Action
+                    </h4>
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider ${getStatusColor(selectedOrder.status)}`}>
+                        {selectedOrder.status}
+                      </span>
+                      <select
+                        value={selectedOrder.status}
+                        onChange={(e) => handleUpdateOrderStatus(selectedOrder.id, e.target.value)}
+                        className="flex-1 bg-white border border-slate-200 rounded-xl p-2 focus:outline-none font-bold text-slate-700 shadow-sm text-[13px] cursor-pointer"
+                      >
+                        <option value="PLACED">PLACED</option>
+                        <option value="APPROVED">APPROVED</option>
+                        <option value="DISPATCHED">DISPATCHED</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="RETURNED">RETURNED</option>
+                        <option value="COMPLETED">COMPLETED</option>
+                        <option value="CANCELLED">CANCELLED</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Financial Details */}
+                  <div className="bg-slate-50/60 border border-slate-150 rounded-2xl p-4 space-y-2">
+                    <h4 className="font-extrabold text-slate-900 text-xs border-b border-slate-150 pb-1.5">
+                      Cost Breakdown
+                    </h4>
+                    <div className="space-y-1.5 pt-1 text-[13px]">
+                      <div className="flex justify-between text-slate-600 font-semibold">
+                        <span>Rental Cost:</span>
+                        <span className="font-bold text-slate-800">₹{(selectedOrder.totalRentalCost || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-600 font-semibold">
+                        <span>Refundable Deposit:</span>
+                        <span className="font-bold text-brand-600">₹{(selectedOrder.totalDeposit || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-600 font-semibold">
+                        <span>Tax (18% GST):</span>
+                        <span className="font-bold text-slate-800">₹{(selectedOrder.totalTax || 0).toFixed(2)}</span>
+                      </div>
+                      <div className="pt-2 border-t border-slate-200/60 flex justify-between text-slate-900 font-extrabold text-sm">
+                        <span>Grand Total:</span>
+                        <span>₹{(selectedOrder.grandTotal || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Rented Equipment section */}
+              <div className="space-y-3">
+                <h4 className="font-extrabold text-slate-950 text-xs flex items-center gap-1.5">
+                  <Layers className="w-4.5 h-4.5 text-slate-700" /> Rented Equipment & Items
+                </h4>
+                
+                <div className="space-y-3">
+                  {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                    selectedOrder.items.map((item: any) => {
+                      const firstImg = item.product?.images?.split(',')[0] || 'https://images.unsplash.com/photo-1620662056087-f2533ed89e86?auto=format&fit=crop&w=600&q=80';
+                      return (
+                        <div key={item.id} className="p-3 bg-slate-50/50 border border-slate-100 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div className="flex gap-3 items-center min-w-0">
+                            <img
+                              src={firstImg}
+                              alt={item.product?.name}
+                              className="w-14 h-14 object-cover rounded-xl bg-slate-100 border border-slate-200/60 shrink-0 shadow-sm"
+                            />
+                            <div className="min-w-0">
+                              <p className="font-bold text-slate-800 text-[13px] truncate">{item.product?.name || 'Equipment Item'}</p>
+                              <p className="text-[12px] text-slate-450 flex items-center gap-1 mt-1 font-bold">
+                                <Calendar className="w-3.5 h-3.5 animate-pulse" />
+                                {new Date(item.startDate).toLocaleDateString()} — {new Date(item.endDate).toLocaleDateString()}
+                              </p>
+                              {item.product?.vendor?.name && (
+                                <p className="text-[11px] text-slate-400 mt-0.5">
+                                  Vendor: <strong className="text-slate-600 font-bold">{item.product.vendor.name}</strong>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0 self-end sm:self-center">
+                            <p className="text-[13px] font-bold text-slate-900 font-mono">₹{item.totalCost?.toFixed(2)}</p>
+                            <p className="text-[12px] text-slate-500 mt-0.5">
+                              Qty: <strong className="text-slate-850 font-bold">{item.quantity}</strong> | ₹{item.depositAmount?.toFixed(2)} deposit
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-slate-400 text-center py-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                      No items found in this order.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-6">
+              <button
+                onClick={() => {
+                  setSelectedOrder(null);
+                  openWhatsappModal(selectedOrder);
+                }}
+                className="px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-xl transition font-bold flex items-center gap-1.5 cursor-pointer text-xs"
+              >
+                <MessageSquare className="w-4 h-4" /> Notify Customer
+              </button>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition cursor-pointer text-xs"
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Loading Modal overlay */}
+      {selectedOrderLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 flex flex-col items-center gap-3 shadow-2xl border border-slate-100">
+            <RefreshCw className="w-8 h-8 text-brand-600 animate-spin" />
+            <p className="text-xs font-bold text-slate-600">Fetching order details...</p>
           </div>
         </div>
       )}
