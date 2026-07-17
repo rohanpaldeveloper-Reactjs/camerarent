@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { 
   Search, Calendar, ArrowLeft, Camera, Disc, Lightbulb, 
-  Mic, Tv, Monitor, Battery, Cpu, Grid, ChevronRight
+  Mic, Tv, Monitor, Battery, Cpu, Grid, ChevronRight, Star
 } from 'lucide-react';
 import { apiRequest } from '../utils/api';
 
@@ -308,26 +308,34 @@ export default function Catalog() {
                 <Link 
                   key={product.id}
                   to={`/products/${product.slug}`}
-                  className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-brand-500/25 transition-all duration-300 group flex flex-col justify-between"
+                  className="bg-white border border-slate-100 hover:border-brand-500/20 rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between p-4"
                 >
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                  <div className="relative aspect-[4/3] w-full rounded-[24px] overflow-hidden bg-slate-50 relative shrink-0">
+                    {/* Fallback Camera Icon for Broken Images */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-slate-350">
+                      <Camera className="w-8 h-8 opacity-30 text-slate-400" />
+                      <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-wider">No Preview</span>
+                    </div>
                     <img 
                       src={product.images.split(',')[0]} 
                       alt={product.name} 
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 z-10"
                       loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
-                    <span className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md text-[11px] text-white font-bold px-2 py-0.5 rounded-full border border-white/5 uppercase">
+                    <span className="absolute top-3 left-3 bg-slate-900/65 backdrop-blur-md text-white text-[9px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-white/10 z-20 tracking-wider">
                       {product.category.name}
                     </span>
                   </div>
 
-                  <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                  <div className="p-3 flex-1 flex flex-col justify-between gap-3 text-left">
                     <div className="space-y-1">
-                      <span className="text-xs text-brand-600 font-extrabold uppercase tracking-wider block">
-                        {product.vendor.name}
+                      <span className="text-[10px] text-brand-600 font-extrabold uppercase tracking-widest block">
+                        {product.vendor.name} Verified
                       </span>
-                      <h3 className="font-extrabold text-xs text-slate-800 line-clamp-1 group-hover:text-brand-600 transition">
+                      <h3 className="font-black text-xs text-slate-800 line-clamp-1 group-hover:text-brand-600 transition duration-300">
                         {product.name}
                       </h3>
                       <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
@@ -335,11 +343,18 @@ export default function Catalog() {
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-slate-50 flex justify-between items-center">
-                      <span className="text-xs font-bold text-brand-600">Available for rent</span>
-                      <span className="text-xs text-slate-400 font-bold flex items-center gap-0.5 group-hover:text-brand-600 transition">
-                        Rent Gear <ChevronRight className="w-3.5 h-3.5" />
-                      </span>
+                    <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+                      <div className="flex items-center gap-1.5">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span className="text-xs font-extrabold text-green-600 uppercase tracking-wider block">Available</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100 shrink-0">
+                        <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                        <span className="text-[10px] font-black text-amber-700">5.0</span>
+                      </div>
                     </div>
                   </div>
                 </Link>

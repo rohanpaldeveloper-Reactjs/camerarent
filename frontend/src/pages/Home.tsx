@@ -324,41 +324,50 @@ export default function Home() {
               <Link
                 key={p.id}
                 to={`/products/${p.slug}`}
-                className="w-56 h-[275px] shrink-0 bg-white border border-slate-100 rounded-3xl p-3 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                className="w-56 h-[300px] shrink-0 bg-white border border-slate-100 hover:border-brand-500/20 rounded-[32px] p-4 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between group"
               >
-                <div className="space-y-3">
-                  <div className="h-32 w-full rounded-2xl overflow-hidden bg-slate-100 relative group shrink-0">
+                <div className="space-y-4">
+                  <div className="h-36 w-full rounded-[24px] overflow-hidden bg-slate-50 relative shrink-0">
                     {/* Fallback Camera Icon for Broken Images */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-slate-100 text-slate-350">
-                      <Camera className="w-8 h-8 opacity-40 text-slate-400" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-slate-350">
+                      <Camera className="w-8 h-8 opacity-30 text-slate-400" />
+                      <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-wider">No Preview</span>
                     </div>
                     <img
                       src={p.images.split(',')[0]}
                       alt={p.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 z-10"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10"
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
-                    <span className="absolute top-2 left-2 bg-green-500 text-white text-[11px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm z-20">
-                      KYC Approved
+                    <span className="absolute top-3 left-3 bg-slate-900/65 backdrop-blur-md text-white text-[9px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-white/10 z-20 tracking-wider">
+                      {p.category.name}
                     </span>
                   </div>
 
-                  <div className="space-y-1 px-1">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{p.category.name}</span>
-                    <h3 className="text-xs font-bold text-slate-800 line-clamp-2 leading-tight h-8">{p.name}</h3>
+                  <div className="space-y-1 px-1 text-left">
+                    <span className="text-[10px] text-brand-600 font-extrabold uppercase tracking-widest block">
+                      {p.vendor.name.split(' ')[0]} Verified
+                    </span>
+                    <h3 className="text-xs font-black text-slate-800 line-clamp-2 leading-snug group-hover:text-brand-650 transition duration-300 h-8">
+                      {p.name}
+                    </h3>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between px-1">
-                  <div>
-                    <span className="text-xs font-bold text-brand-600 block leading-tight">Available</span>
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between px-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <span className="text-xs font-extrabold text-green-600 uppercase tracking-wider block">Available</span>
                   </div>
-                  <div className="flex items-center gap-0.5 text-amber-500">
-                    <Star className="w-3 h-3 fill-amber-500" />
-                    <span className="text-xs font-bold text-slate-650">5.0</span>
+                  <div className="flex items-center gap-1 text-amber-500 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100">
+                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                    <span className="text-[10px] font-black text-amber-700">5.0</span>
                   </div>
                 </div>
               </Link>
