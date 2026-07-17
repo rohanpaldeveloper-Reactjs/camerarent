@@ -13,12 +13,10 @@ export default function Navbar() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navMenu = contents.navigation_menu || [
+  const navMenu = [
     { label: 'Home', path: '/' },
-    { label: 'Explore Catalog', path: '/catalog' },
+    { label: 'Catalog', path: '/catalog' },
     { label: 'About Us', path: '/about' },
-    { label: 'Policies', path: '/policies' },
-    { label: 'FAQs', path: '/faq' },
     { label: 'Contact', path: '/contact' }
   ];
 
@@ -64,7 +62,7 @@ export default function Navbar() {
         {user && user.role === 'ADMIN' && (
           <Link to="/admin" className="flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 transition font-semibold">
             <BarChart2 className="w-4 h-4" />
-            Admin Panel
+            Admin
           </Link>
         )}
 
@@ -155,7 +153,7 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 text-sm font-bold text-brand-600 hover:text-brand-700 transition"
               >
-                <BarChart2 className="w-4 h-4" /> Admin Panel
+                <BarChart2 className="w-4 h-4" /> Admin
               </Link>
             )}
 
