@@ -6,6 +6,7 @@ import {
   Truck, HelpCircle, MapPin, Calendar, Heart, Award
 } from 'lucide-react';
 import { apiRequest } from '../utils/api';
+import { useCmsStore } from '../store/cmsStore';
 
 interface Product {
   id: string;
@@ -29,6 +30,33 @@ export default function Home() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { contents } = useCmsStore();
+
+  const hero = contents.home_hero || {
+    sparkText: "India's Premium Creative Gear Marketplace",
+    titleLine1: 'Own the Experience',
+    titleLine2: 'Rent the Gear',
+    description: 'Why buy when you can upgrade? Rent cameras, lenses, stabilizers, and audio packs from verified local vendors with zero cash deposit holds.'
+  };
+
+  const cta = contents.home_cta || {
+    badge: 'First Rent Offer',
+    title: 'Claim 10% Off Your First Gear Booking',
+    description: 'Rent your favorite gear today. Verified creators, zero deposit holds, instant WhatsApp confirmation.',
+    buttonText: 'Claim Now!',
+    link: '/catalog'
+  };
+
+  const servicesList = contents.services || [
+    { id: 's1', name: 'Cost-Effective', description: 'Save upto 80% on gear.' },
+    { id: 's2', name: 'Flexibility', description: 'Rent what you need.' },
+    { id: 's3', name: 'Latest Gear', description: 'Access the latest tech.' },
+    { id: 's4', name: 'Support', description: '24x7 hassle-free support.' }
+  ];
+
+  const testimonials = contents.testimonials || [];
+  const clientLogos = contents.client_logos || [];
 
   // Search & Navigation States
   const [searchText, setSearchText] = useState('');
@@ -114,8 +142,8 @@ export default function Home() {
               className="w-24 h-16 object-cover rounded-lg"
             />
             <div>
-              <p className="text-[10px] font-bold text-white leading-tight">Sony FX3 Cinema</p>
-              <p className="text-[9px] text-amber-400 font-bold mt-0.5">From ₹120/day</p>
+              <p className="text-xs font-bold text-white leading-tight">Sony FX3 Cinema</p>
+              <p className="text-xs text-amber-400 font-bold mt-0.5">Verified Hub</p>
             </div>
           </div>
 
@@ -126,22 +154,22 @@ export default function Home() {
               className="w-24 h-16 object-cover rounded-lg"
             />
             <div>
-              <p className="text-[10px] font-bold text-white leading-tight">DJI Inspire 3 Drone</p>
-              <p className="text-[9px] text-green-400 font-bold mt-0.5">Verified Calibrated</p>
+              <p className="text-xs font-bold text-white leading-tight">DJI Inspire 3 Drone</p>
+              <p className="text-xs text-green-400 font-bold mt-0.5">Verified Calibrated</p>
             </div>
           </div>
 
           {/* Hero Titles */}
           <div className="space-y-4 max-w-3xl z-10">
-            <span className="inline-flex items-center gap-1.5 bg-brand-500/20 border border-brand-500/30 text-brand-300 text-[10px] font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5" /> India's Premium Creative Gear Marketplace
+            <span className="inline-flex items-center gap-1.5 bg-brand-500/20 border border-brand-500/30 text-brand-300 text-xs font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" /> {hero.sparkText}
             </span>
             <h1 className="text-3xl md:text-6xl font-black tracking-tight leading-none font-sans">
-              Own the <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-accent-400">Experience</span><br />
-              Rent the <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-400 to-brand-400">Gear</span>
+              {hero.titleLine1} <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-accent-400">{hero.titleLine2}</span>
             </h1>
             <p className="text-xs md:text-sm text-slate-300 font-medium max-w-xl mx-auto leading-relaxed">
-              Why buy when you can upgrade? Rent cameras, lenses, stabilizers, and audio packs from verified local vendors with zero cash deposit holds.
+              {hero.description}
             </p>
           </div>
 
@@ -158,7 +186,7 @@ export default function Home() {
               >
                 <MapPin className="w-4 h-4 text-brand-600 shrink-0" />
                 <div className="text-left">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">City</span>
+                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wider block">City</span>
                   <span className="text-xs font-bold text-slate-800">{selectedCity}</span>
                 </div>
               </div>
@@ -183,7 +211,7 @@ export default function Home() {
               <Calendar className="w-4 h-4 text-brand-600 shrink-0" />
               <div className="grid grid-cols-2 gap-2 text-left w-full">
                 <div>
-                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Rental Start</span>
+                  <span className="text-xs text-slate-400 font-bold uppercase block">Rental Start</span>
                   <input
                     type="date"
                     value={rentalDates.start}
@@ -192,7 +220,7 @@ export default function Home() {
                   />
                 </div>
                 <div>
-                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Rental End</span>
+                  <span className="text-xs text-slate-400 font-bold uppercase block">Rental End</span>
                   <input
                     type="date"
                     value={rentalDates.end}
@@ -231,7 +259,7 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-gradient-to-r from-blue-600 to-brand-700 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-white shadow-lg shadow-blue-500/10 border border-blue-400/15">
           <div className="space-y-1 text-center md:text-left">
-            <span className="bg-white/20 text-white text-[9px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">Passive Earning</span>
+            <span className="bg-white/20 text-white text-xs font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">Passive Earning</span>
             <h3 className="text-lg md:text-xl font-extrabold tracking-tight mt-1">Fund CameraRent's Creative Assets</h3>
             <p className="text-xs text-blue-100">Rent out your redundant cameras, lens scopes, or lights and secure weekly bank payouts.</p>
           </div>
@@ -313,25 +341,24 @@ export default function Home() {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
-                    <span className="absolute top-2 left-2 bg-green-500 text-white text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm z-20">
+                    <span className="absolute top-2 left-2 bg-green-500 text-white text-[11px] font-black uppercase px-2 py-0.5 rounded-full shadow-sm z-20">
                       KYC Approved
                     </span>
                   </div>
 
                   <div className="space-y-1 px-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{p.category.name}</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{p.category.name}</span>
                     <h3 className="text-xs font-bold text-slate-800 line-clamp-2 leading-tight h-8">{p.name}</h3>
                   </div>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between px-1">
                   <div>
-                    <span className="text-[8px] font-bold text-slate-400 block leading-tight">From</span>
-                    <span className="text-xs font-black text-slate-850">₹{p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
+                    <span className="text-xs font-bold text-brand-600 block leading-tight">Available</span>
                   </div>
                   <div className="flex items-center gap-0.5 text-amber-500">
                     <Star className="w-3 h-3 fill-amber-500" />
-                    <span className="text-[10px] font-bold text-slate-650">5.0</span>
+                    <span className="text-xs font-bold text-slate-650">5.0</span>
                   </div>
                 </div>
               </Link>
@@ -361,14 +388,14 @@ export default function Home() {
           </div>
 
           <div className="space-y-3 max-w-2xl z-10">
-            <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest block">
-              TURN YOUR IDEAS INTO REALITY. CREATE WITH PURPOSE.
+            <span className="text-xs md:text-xs font-black text-slate-400 uppercase tracking-widest block">
+              {cta.badge}
             </span>
             <h2 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight tracking-tight font-sans">
-              Unlock 10% Off<br />On Your First Rental
+              {cta.title}
             </h2>
             <p className="text-xs md:text-sm text-slate-500 font-medium leading-relaxed max-w-lg mx-auto">
-              Don’t miss this exclusive 10% off—rent your favorite gear today!
+              {cta.description}
             </p>
           </div>
 
@@ -377,7 +404,7 @@ export default function Home() {
             onClick={handleClaimPromo}
             className="z-10 relative flex items-center justify-between gap-6 pl-8 pr-2.5 py-2.5 bg-gradient-to-r from-teal-400 to-indigo-650 hover:from-teal-500 hover:to-indigo-750 text-white font-extrabold text-sm md:text-base rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
           >
-            <span>Claim Now!</span>
+            <span>{cta.buttonText}</span>
             <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-md">
               <ArrowRight className="w-4 h-4 text-indigo-650" />
             </div>
@@ -388,50 +415,22 @@ export default function Home() {
       {/* 6. WHY CAMORENT */}
       <div className="max-w-7xl mx-auto px-4 space-y-8">
         <div className="text-center space-y-1">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">WHY CAMORENT</span>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">WHY CAMORENT</span>
           <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">Trusted by Professionals Across the Globe</h2>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="flex flex-col items-center text-center gap-4 group">
-            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
-              <img src="/circle1.png" alt="Cost-Effective" className="w-full h-full object-cover" />
+          {servicesList.map((s: any, idx: number) => (
+            <div key={s.id || idx} className="flex flex-col items-center text-center gap-4 group">
+              <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
+                <img src={`/circle${(idx % 4) + 1}.png`} alt={s.name} className="w-full h-full object-cover" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-extrabold text-sm text-slate-850">{s.name}</h4>
+                <p className="text-[11px] text-slate-400 font-medium">{s.description}</p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h4 className="font-extrabold text-sm text-slate-850">Cost-Effective</h4>
-              <p className="text-[11px] text-slate-400 font-medium">Save upto 80% on gear.</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center text-center gap-4 group">
-            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
-              <img src="/circle2.png" alt="Flexibility" className="w-full h-full object-cover" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-extrabold text-sm text-slate-850">Flexibility</h4>
-              <p className="text-[11px] text-slate-400 font-medium">Rent what you need.</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center text-center gap-4 group">
-            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
-              <img src="/circle3.png" alt="Latest Gear" className="w-full h-full object-cover" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-extrabold text-sm text-slate-850">Latest Gear</h4>
-              <p className="text-[11px] text-slate-400 font-medium">Access the latest tech.</p>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center text-center gap-4 group">
-            <div className="w-44 h-44 rounded-full overflow-hidden border-2 border-slate-100 shadow-md group-hover:scale-105 transition-transform duration-300 bg-slate-150 relative">
-              <img src="/circle4.png" alt="Support" className="w-full h-full object-cover" />
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-extrabold text-sm text-slate-850">Support</h4>
-              <p className="text-[11px] text-slate-400 font-medium">24x7 hassle-free support.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -478,17 +477,16 @@ export default function Home() {
                     />
                   </div>
                   <div className="space-y-1 mt-3 px-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{p.category.name}</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{p.category.name}</span>
                     <h3 className="text-xs font-bold text-slate-800 line-clamp-2 leading-tight h-8 group-hover:text-brand-650 transition">{p.name}</h3>
                   </div>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between mt-3 px-1">
                   <div>
-                    <span className="text-[8px] font-bold text-slate-400 block leading-tight">From</span>
-                    <span className="text-xs font-black text-slate-850">₹{p.dailyRate}<span className="text-[10px] font-normal text-slate-500">/day</span></span>
+                    <span className="text-xs font-bold text-brand-600 block leading-tight">Available</span>
                   </div>
-                  <span className="text-[9px] bg-slate-50 border border-slate-100 text-slate-650 font-bold px-2 py-0.5 rounded-lg capitalize">
+                  <span className="text-xs bg-slate-50 border border-slate-100 text-slate-650 font-bold px-2 py-0.5 rounded-lg capitalize">
                     {p.vendor.name.split(' ')[0]}
                   </span>
                 </div>
@@ -497,6 +495,49 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Testimonials Section */}
+      {testimonials.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 space-y-8 pt-8">
+          <div className="text-center space-y-1">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest block">TESTIMONIALS</span>
+            <h2 className="text-2xl md:text-3.5xl font-black text-slate-900 tracking-tight">What Creative Directors Say</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t: any, idx: number) => (
+              <div key={t.id || idx} className="bg-white border border-slate-100 p-6 rounded-3xl shadow-sm space-y-4 hover:border-brand-200 transition duration-300">
+                <div className="flex items-center gap-0.5 text-amber-500">
+                  {Array.from({ length: t.rating || 5 }).map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-500" />
+                  ))}
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium italic">
+                  "{t.comment}"
+                </p>
+                <div className="border-t border-slate-50 pt-3">
+                  <h4 className="font-extrabold text-xs text-slate-800">{t.name}</h4>
+                  <p className="text-[10px] text-brand-650 font-bold">{t.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Client Logos Section */}
+      {clientLogos.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 border-t border-slate-200/40 pt-16 space-y-6">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">TRUSTED BY TOP CREATIVE AGENCIES</p>
+          <div className="flex flex-wrap items-center justify-center gap-12 opacity-60">
+            {clientLogos.map((l: any, idx: number) => (
+              <div key={l.id || idx} className="flex items-center gap-2">
+                <img src={l.imageUrl} alt={l.name} className="h-6 object-contain rounded" />
+                <span className="font-bold text-[10px] text-slate-550 uppercase tracking-wider">{l.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
     </div>
   );

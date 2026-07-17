@@ -6,7 +6,7 @@
 
 @layer base {
   html {
-    font-size: 108%; /* Globally scales all font sizes by ~8% */
+    font-size: 120%; /* Globally scale up all layout text for better readability */
   }
   body {
     @apply bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white;

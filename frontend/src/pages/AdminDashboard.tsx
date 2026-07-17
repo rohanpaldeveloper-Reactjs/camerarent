@@ -6,6 +6,7 @@ import {
   MessageSquare, UserPlus, X, Send, PhoneCall, Eye, FileText, ExternalLink
 } from 'lucide-react';
 import { apiRequest } from '../utils/api';
+import CmsPanel from '../components/CmsPanel';
 
 interface StatBlock {
   totalOrdersCount: number;
@@ -26,7 +27,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<any[]>([]);
   const [contactMessages, setContactMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'orders' | 'cancellations' | 'kyc' | 'products' | 'users' | 'inquiries'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'cancellations' | 'kyc' | 'products' | 'users' | 'inquiries' | 'cms'>('orders');
 
   // KYC pending users
   const [pendingKycUsers, setPendingKycUsers] = useState<any[]>([]);
@@ -422,6 +423,7 @@ export default function AdminDashboard() {
           { id: 'products', label: 'Inventory & Setup', count: products.length },
           { id: 'users', label: 'Users Manager', count: users.length },
           { id: 'inquiries', label: 'User Inquiries', count: contactMessages.length },
+          { id: 'cms', label: 'CMS Content Manager', count: 7 },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -1052,6 +1054,10 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+          )}
+
+          {activeTab === 'cms' && (
+            <CmsPanel />
           )}
 
         </div>

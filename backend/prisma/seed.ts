@@ -7,6 +7,7 @@ async function main() {
   console.log('Start seeding...');
 
   // Clean the database
+  await prisma.cmsContent.deleteMany({});
   await prisma.cancellationRequest.deleteMany({});
   await prisma.orderItem.deleteMany({});
   await prisma.order.deleteMany({});
@@ -659,8 +660,160 @@ async function main() {
   for (const product of products) {
     await prisma.product.create({ data: product });
   }
-
   console.log('Products created.');
+
+  // Create CMS Default Contents
+  const cmsData = [
+    {
+      key: 'seo_metadata',
+      value: JSON.stringify({
+        metaTitle: 'CameraRent - Premium Camera & Video Gear Rentals',
+        metaDescription: 'Rent professional cinema cameras, lenses, lights, and audio equipment from local vetted vendors with zero deposit holds.',
+        ogTitle: 'CameraRent - Premium Production Gear Marketplace',
+        ogDescription: 'Get professional film production gear on rent directly from local rental hubs in India.',
+        ogImage: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=80',
+        ogUrl: 'http://localhost:5173'
+      })
+    },
+    {
+      key: 'company_details',
+      value: JSON.stringify({
+        name: 'CameraRent India',
+        phone: '+91 99999 99999',
+        email: 'support@camerarent.com',
+        address: 'Andheri West, Mumbai, Maharashtra, 400053',
+        city: 'Mumbai'
+      })
+    },
+    {
+      key: 'social_links',
+      value: JSON.stringify({
+        facebook: 'https://facebook.com/camerarent',
+        twitter: 'https://twitter.com/camerarent',
+        instagram: 'https://instagram.com/camerarent',
+        youtube: 'https://youtube.com/camerarent',
+        linkedin: 'https://linkedin.com/company/camerarent'
+      })
+    },
+    {
+      key: 'navigation_menu',
+      value: JSON.stringify([
+        { label: 'Home', path: '/' },
+        { label: 'Explore Catalog', path: '/catalog' },
+        { label: 'About Us', path: '/about' },
+        { label: 'Policies', path: '/policies' },
+        { label: 'FAQs', path: '/faq' },
+        { label: 'Contact', path: '/contact' }
+      ])
+    },
+    {
+      key: 'footer_content',
+      value: JSON.stringify({
+        description: 'CameraRent is a premium multivendor online marketplace where production crews can rent verified camera bodies, anamorphic lenses, lights, and grip support directly from local vetted suppliers.',
+        copyright: '© 2026 CameraRent Inc. All rights reserved.',
+        links: [
+          { label: 'Privacy Policy', path: '/policies' },
+          { label: 'Terms of Use', path: '/policies' }
+        ]
+      })
+    },
+    {
+      key: 'home_hero',
+      value: JSON.stringify({
+        sparkText: "India's Premium Creative Gear Marketplace",
+        titleLine1: 'Own the Experience',
+        titleLine2: 'Rent the Gear',
+        description: 'Why buy when you can upgrade? Rent cameras, lenses, stabilizers, and audio packs from verified local vendors with zero cash deposit holds.'
+      })
+    },
+    {
+      key: 'home_cta',
+      value: JSON.stringify({
+        badge: 'First Rent Offer',
+        title: 'Claim 10% Off Your First Gear Booking',
+        description: 'Rent your favorite gear today. Verified creators, zero deposit holds, instant WhatsApp confirmation.',
+        buttonText: 'Explore Catalog Now',
+        link: '/catalog'
+      })
+    },
+    {
+      key: 'about_page',
+      value: JSON.stringify({
+        title: 'Who We Are',
+        subtitle: 'Connecting creators with state-of-the-art camera and cinema equipment.',
+        description: 'CameraRent was founded in 2024 to simplify the filmmaking logistics. We enable filmmakers, broadcasters, and commercial producers to instantly reserve high-end gear from local certified vendors.',
+        content: 'We offer a secure, zero-hassle environment with pre-inspected inventory checklists, comprehensive damage protections, and transparent communication protocols. No matter the scale of your production, we have you covered.',
+        bannerUrl: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1200&q=80'
+      })
+    },
+    {
+      key: 'services',
+      value: JSON.stringify([
+        { id: 's1', name: 'Verified Gear Delivery', description: 'Every camera, lens, and microphone goes through a 24-point calibration and inspection before delivery.', iconName: 'ShieldCheck' },
+        { id: 's2', name: 'Zero-Holding Deposits', description: 'We run rapid identity and KYC analysis to authorize gear pick-ups without locking up thousands in security deposits.', iconName: 'Award' },
+        { id: 's3', name: 'Production Handover Lists', description: 'Every dispatch contains pre-existing scuff checklists to ensure zero disputes on gear returns.', iconName: 'Truck' },
+        { id: 's4', name: '24/7 Crew Support', description: 'Run into a settings snag on set? Our technical support line is available 24/7 for hot replacements or troubleshooting.', iconName: 'HelpCircle' }
+      ])
+    },
+    {
+      key: 'portfolio',
+      value: JSON.stringify([
+        { id: 'p1', title: 'Cinematic Short - The Last Call', category: 'Short Film', description: 'Shot entirely using our ARRI Alexa Mini LF rental kit, combined with Master Prime lenses.', imageUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=80' },
+        { id: 'p2', title: 'Fashion Campaign - Summer Vibe', category: 'Commercial', description: 'Captured with RED V-Raptor, using wireless video transmission monitors on-set.', imageUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80' },
+        { id: 'p3', title: 'Music Video - Cyberpunk Beats', category: 'Music Video', description: 'Shot inside a neon-lit studio using Astera Titan Tubes and dynamic Ronin 2 stabilizers.', imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80' }
+      ])
+    },
+    {
+      key: 'events',
+      value: JSON.stringify([
+        { id: 'e1', title: 'Cinema Tech Exposition 2026', date: 'August 15, 2026', location: 'Nesco Center, Mumbai', description: 'Explore the next generation of camera bodies, optical accessories, and live broadcast workflows.' },
+        { id: 'e2', title: 'Hands-on Anamorphic Workshop', date: 'September 10, 2026', location: 'CameraRent Studios, Pune', description: 'A deep-dive workshop into capturing widescreen cinematic aesthetics using anamorphic prime lenses.' }
+      ])
+    },
+    {
+      key: 'testimonials',
+      value: JSON.stringify([
+        { id: 't1', name: 'Rohan Sharma', role: 'Director of Photography', comment: 'The zero deposit policy is a lifesaver. We were able to scale up our camera package from a single body to three FX3 rigs without blowing our production budget on security holds.', rating: 5 },
+        { id: 't2', name: 'Priya Patel', role: 'Creative Producer', comment: 'Outstanding support! When a lens mount got stuck on location, they had a technician deliver a backup lens to our set within 90 minutes. I rent exclusively from CameraRent now.', rating: 5 },
+        { id: 't3', name: 'Amit Kumar', role: 'Indie Filmmaker', comment: 'Renting from verified local vendors makes renting incredibly easy. Highly recommend their anamorphic lenses selection.', rating: 5 }
+      ])
+    },
+    {
+      key: 'client_logos',
+      value: JSON.stringify([
+        { id: 'l1', name: 'Netflix India', imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=150&q=80' },
+        { id: 'l2', name: 'Viacom18', imageUrl: 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=150&q=80' },
+        { id: 'l3', name: 'Hotstar', imageUrl: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=150&q=80' }
+      ])
+    },
+    {
+      key: 'team_members',
+      value: JSON.stringify([
+        { id: 'm1', name: 'Vikram Malhotra', role: 'Co-Founder & CEO', imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80' },
+        { id: 'm2', name: 'Neha Sen', role: 'Head of Technical Operations', imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80' },
+        { id: 'm3', name: 'Siddharth Roy', role: 'Vendor Relationship Manager', imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80' }
+      ])
+    },
+    {
+      key: 'faqs',
+      value: JSON.stringify([
+        { id: 'fq15', question: 'What is the zero deposit policy?', answer: 'Instead of holding huge cash amounts on your card, we perform a standard digital verification. Once your KYC is approved, you can rent equipment with no upfront security deposit hold.' },
+        { id: 'fq2', question: 'What happens if gear gets damaged?', answer: 'We offer optional damage waivers during checkout. For accidental minor scuffs, you are fully covered. For major negligence, the customer is responsible up to the repair/replacement deductible.' },
+        { id: 'fq3', question: 'Are the equipment listings verified?', answer: 'Yes, all rental items listed on CameraRent are owned by verified, local equipment vendors. Our operations team inspects their hubs periodically to ensure all gear is calibrated and maintained.' }
+      ])
+    },
+    {
+      key: 'banners',
+      value: JSON.stringify([
+        { id: 'b1', name: 'Earning Banner', imageUrl: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1200&q=80', link: '/vendor-onboarding' }
+      ])
+    }
+  ];
+
+  for (const item of cmsData) {
+    await prisma.cmsContent.create({ data: item });
+  }
+  console.log('CMS default contents created.');
   console.log('Seeding finished successfully.');
 }
 

@@ -212,8 +212,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-xs font-bold text-slate-800">₹{item.totalCost.toFixed(2)}</p>
-                          <p className="text-[10px] text-slate-400">Qty: {item.quantity}</p>
+                          <p className="text-xs font-bold text-slate-500">Qty: {item.quantity}</p>
                         </div>
                       </div>
                     ))}
@@ -222,8 +221,7 @@ export default function Dashboard() {
                   {/* Order Summary Bottom */}
                   <div className="pt-4 border-t border-slate-100 flex justify-between items-center flex-wrap gap-4 text-xs">
                     <div>
-                      <p className="text-slate-500">Grand Total: <strong className="text-slate-900">₹{order.grandTotal.toFixed(2)}</strong></p>
-                      <p className="text-[10px] text-slate-400">Security Deposit hold: ₹{order.totalDeposit.toFixed(2)}</p>
+                      <p className="text-slate-500">Delivery Address: <strong className="text-slate-800">{order.deliveryAddress}</strong></p>
                     </div>
 
                     {/* Cancellation Actions */}

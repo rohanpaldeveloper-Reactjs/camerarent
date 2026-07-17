@@ -253,7 +253,7 @@ export default function Catalog() {
 
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-400 font-bold uppercase">Rent Dates:</span>
+              <span className="text-xs text-slate-400 font-bold uppercase">Rent Dates:</span>
               <input
                 type="date"
                 value={startDate}
@@ -273,7 +273,7 @@ export default function Catalog() {
             {(selectedCategory !== 'all' || search !== '' || startDate !== '' || endDate !== '') && (
               <button
                 onClick={clearFilters}
-                className="text-[10px] text-red-500 hover:text-red-600 font-bold hover:underline cursor-pointer"
+                className="text-xs text-red-500 hover:text-red-600 font-bold hover:underline cursor-pointer"
               >
                 Reset Filters
               </button>
@@ -317,30 +317,27 @@ export default function Catalog() {
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
-                    <span className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md text-[8px] text-white font-bold px-2 py-0.5 rounded-full border border-white/5 uppercase">
+                    <span className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md text-[11px] text-white font-bold px-2 py-0.5 rounded-full border border-white/5 uppercase">
                       {product.category.name}
                     </span>
                   </div>
 
                   <div className="p-4 flex-1 flex flex-col justify-between gap-3">
                     <div className="space-y-1">
-                      <span className="text-[9px] text-brand-600 font-extrabold uppercase tracking-wider block">
+                      <span className="text-xs text-brand-600 font-extrabold uppercase tracking-wider block">
                         {product.vendor.name}
                       </span>
                       <h3 className="font-extrabold text-xs text-slate-800 line-clamp-1 group-hover:text-brand-600 transition">
                         {product.name}
                       </h3>
-                      <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
                         {product.description}
                       </p>
                     </div>
 
                     <div className="pt-2 border-t border-slate-50 flex justify-between items-center">
-                      <div>
-                        <p className="text-[8px] text-slate-400 uppercase font-semibold">Rate/Day</p>
-                        <p className="text-xs font-black text-slate-900">₹{product.dailyRate}</p>
-                      </div>
-                      <span className="text-[9px] text-slate-400 font-bold flex items-center gap-0.5 group-hover:text-brand-600 transition">
+                      <span className="text-xs font-bold text-brand-600">Available for rent</span>
+                      <span className="text-xs text-slate-400 font-bold flex items-center gap-0.5 group-hover:text-brand-600 transition">
                         Rent Gear <ChevronRight className="w-3.5 h-3.5" />
                       </span>
                     </div>

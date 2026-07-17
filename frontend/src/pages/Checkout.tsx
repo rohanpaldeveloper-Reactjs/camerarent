@@ -90,9 +90,9 @@ export default function Checkout() {
             <MessageSquare className="w-4 h-4" /> WhatsApp Notification Sent
           </div>
           <div className="p-3 bg-dark-bg/60 border border-dark-border rounded-xl font-mono text-[10px] text-slate-300 leading-normal space-y-1.5">
-            <p><strong>To:</strong> John Doe (Customer)</p>
+            <p><strong>To:</strong> {user?.name || 'Customer'}</p>
             <p className="text-[11px] text-slate-200">
-              "Hi John! Your CameraRent booking <strong>#{orderNum}</strong> for total <strong>₹{grandTotal.toFixed(2)}</strong> (including ₹{depositTotal.toFixed(2)} deposit hold) has been registered. We'll update you once approved!"
+              "Hi {user?.name || 'there'}! Your CameraRent booking <strong>#{orderNum}</strong> has been registered. We'll update you once approved!"
             </p>
           </div>
         </div>
@@ -197,31 +197,12 @@ export default function Checkout() {
                 <div className="max-w-[70%]">
                   <p className="font-bold text-slate-300 line-clamp-1">{item.product.name}</p>
                   <p className="text-[10px] text-slate-500">
-                    {item.rentalDays} days x {item.quantity} unit
+                    {item.rentalDays} days
                   </p>
                 </div>
-                <span className="font-semibold text-gray-200">₹{item.rentalCost.toFixed(2)}</span>
+                <span className="font-semibold text-slate-400 bg-slate-800 px-2.5 py-0.5 rounded-lg">Qty: {item.quantity}</span>
               </div>
             ))}
-          </div>
-
-          <div className="space-y-3 text-xs">
-            <div className="flex justify-between text-slate-400">
-              <span>Rental Cost:</span>
-              <span className="font-bold text-gray-200">₹{rentalTotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-slate-400">
-              <span>18% GST (Taxes):</span>
-              <span className="font-bold text-gray-200">₹{taxTotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-brand-400 font-bold border-b border-dashed border-dark-border pb-3">
-              <span>Security Deposit (Authorize Hold):</span>
-              <span>₹{depositTotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-sm font-extrabold text-white pt-1">
-              <span>Grand Total due:</span>
-              <span>₹{grandTotal.toFixed(2)}</span>
-            </div>
           </div>
         </div>
       </div>

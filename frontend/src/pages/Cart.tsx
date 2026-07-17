@@ -119,11 +119,6 @@ export default function Cart() {
                   </button>
                 </div>
 
-                {/* Price block */}
-                <div className="text-right">
-                  <p className="text-xs font-bold text-slate-700">Rental: ₹{item.rentalCost.toFixed(2)}</p>
-                  <p className="text-[10px] text-brand-600 font-bold">Deposit: +₹{item.depositCost.toFixed(2)}</p>
-                </div>
               </div>
 
               {/* Delete button */}
@@ -155,22 +150,15 @@ export default function Cart() {
           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
             <h3 className="font-extrabold text-base text-slate-800">Order Summary</h3>
 
-            <div className="space-y-3 text-xs">
-              <div className="flex justify-between text-slate-500">
-                <span>Rental Subtotal:</span>
-                <span className="font-bold text-slate-700">₹{rentalTotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-slate-500">
-                <span>18% GST (Taxes):</span>
-                <span className="font-bold text-slate-700">₹{taxTotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-brand-600 font-extrabold border-b border-dashed border-slate-200 pb-3">
-                <span>Refundable Security Deposit:</span>
-                <span>₹{depositTotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm font-extrabold text-slate-900 pt-1">
-                <span>Grand Total:</span>
-                <span>₹{grandTotal.toFixed(2)}</span>
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-2">Order Details</h4>
+              <div className="space-y-2 text-xs">
+                {items.map((item) => (
+                  <div key={item.id} className="flex justify-between items-center text-slate-600 font-semibold gap-4">
+                    <span className="truncate max-w-[70%] text-slate-700">{item.product.name}</span>
+                    <span className="shrink-0 text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-bold">Qty: {item.quantity}</span>
+                  </div>
+                ))}
               </div>
             </div>
 

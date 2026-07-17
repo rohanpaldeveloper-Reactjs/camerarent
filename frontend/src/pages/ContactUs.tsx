@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquare, Clock } from 'lucide-react';
 import { apiRequest } from '../utils/api';
+import { useCmsStore } from '../store/cmsStore';
 
 export default function ContactUs() {
+  const { contents } = useCmsStore();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -10,6 +13,13 @@ export default function ContactUs() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  const company = contents.company_details || {
+    name: 'CameraRent India',
+    phone: '+91 (022) 555-0199',
+    email: 'support@camerarent.com',
+    address: 'Level 4, Cine Tower, Bandra West, Mumbai, MH, 400050'
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +50,7 @@ export default function ContactUs() {
       
       {/* Header section */}
       <div className="text-center max-w-xl mx-auto space-y-3">
-        <span className="bg-brand-100 text-brand-700 text-[10px] font-bold px-3 py-1.5 rounded-full border border-brand-200 uppercase tracking-wider">
+        <span className="bg-brand-100 text-brand-700 text-xs font-bold px-3 py-1.5 rounded-full border border-brand-200 uppercase tracking-wider">
           Support Center
         </span>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight font-sans">
@@ -67,7 +77,7 @@ export default function ContactUs() {
                 <div>
                   <h3 className="text-xs font-bold text-slate-800">General Support</h3>
                   <p className="text-xs text-slate-500 mt-0.5">For active order modifications & billing inquiries.</p>
-                  <span className="text-xs text-brand-600 font-bold mt-1 block">support@camerarent.com</span>
+                  <span className="text-xs text-brand-600 font-bold mt-1 block">{company.email}</span>
                 </div>
               </div>
 
@@ -79,7 +89,7 @@ export default function ContactUs() {
                 <div>
                   <h3 className="text-xs font-bold text-slate-800">Hotline Helpline</h3>
                   <p className="text-xs text-slate-500 mt-0.5">Speak with a local logistics dispatcher directly.</p>
-                  <span className="text-xs text-brand-600 font-bold mt-1 block">+91 (022) 555-0199</span>
+                  <span className="text-xs text-brand-600 font-bold mt-1 block">{company.phone}</span>
                 </div>
               </div>
 
@@ -92,7 +102,7 @@ export default function ContactUs() {
                   <h3 className="text-xs font-bold text-slate-800">Operations Hub</h3>
                   <p className="text-xs text-slate-500 mt-0.5">Corporate headquarters & verification desk.</p>
                   <span className="text-xs text-slate-700 font-semibold mt-1 block">
-                    Level 4, Cine Tower, Bandra West, Mumbai, MH, 400050
+                    {company.address}
                   </span>
                 </div>
               </div>
@@ -130,7 +140,7 @@ export default function ContactUs() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Full Name</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5">Full Name</label>
                 <input
                   type="text"
                   value={name}
@@ -141,7 +151,7 @@ export default function ContactUs() {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5">Email Address</label>
                 <input
                   type="email"
                   value={email}
@@ -154,7 +164,7 @@ export default function ContactUs() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Subject</label>
+              <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5">Subject</label>
               <input
                 type="text"
                 value={subject}
@@ -166,7 +176,7 @@ export default function ContactUs() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Message Content</label>
+              <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5">Message Content</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}

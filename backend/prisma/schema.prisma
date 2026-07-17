@@ -159,3 +159,12 @@ model ContactMessage {
   message   String
   createdAt DateTime @default(now())
 }
+
+model CmsContent {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String   // Stores stringified JSON configuration for the section
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

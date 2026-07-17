@@ -1,16 +1,19 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
 import authRoutes from './controllers/auth.controller';
 import productRoutes from './controllers/product.controller';
 import cartRoutes from './controllers/cart.controller';
 import orderRoutes from './controllers/order.controller';
 import contactRoutes from './controllers/contact.controller';
+import cmsRoutes from './controllers/cms.controller';
 
 const app = express();
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -18,6 +21,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/contacts', contactRoutes);
+app.use('/api/cms', cmsRoutes);
 
 // Root/Health route
 app.get('/', (req, res) => {

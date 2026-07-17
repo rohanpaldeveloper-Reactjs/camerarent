@@ -2,6 +2,8 @@ import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import { useAuthStore } from './store/authStore';
+import { useCmsStore } from './store/cmsStore';
+import { useSEO } from './utils/useSEO';
 import Footer from './components/Footer';
 import { Loader2 } from 'lucide-react';
 
@@ -19,6 +21,7 @@ const ContactUs = lazy(() => import('./pages/ContactUs'));
 const Policies = lazy(() => import('./pages/Policies'));
 const Faq = lazy(() => import('./pages/Faq'));
 const VendorOnboarding = lazy(() => import('./pages/VendorOnboarding'));
+const About = lazy(() => import('./pages/About'));
 
 // Simple loading indicator fallback for Suspense
 function PageLoader() {
@@ -46,6 +49,9 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
 
 export default function App() {
   const { token, refreshProfile } = useAuthStore();
+  const { fetchCms } = useCmsStore();
+
+  useSEO();
 
   // Automatically refresh profile on app startup if token exists
   useEffect(() => {
@@ -53,6 +59,10 @@ export default function App() {
       refreshProfile();
     }
   }, [token, refreshProfile]);
+
+  useEffect(() => {
+    fetchCms();
+  }, [fetchCms]);
 
   return (
     <BrowserRouter>
@@ -78,6 +88,7 @@ export default function App() {
               <Route path="/policies" element={<Policies />} />
               <Route path="/faq" element={<Faq />} />
               <Route path="/vendor-onboarding" element={<VendorOnboarding />} />
+              <Route path="/about" element={<About />} />
 
               {/* Protected Customer Routes */}
               <Route

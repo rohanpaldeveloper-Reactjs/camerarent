@@ -3,13 +3,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, LogOut, Camera, Grid, BarChart2, ChevronDown, PhoneCall, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
+import { useCmsStore } from '../store/cmsStore';
 
 export default function Navbar() {
   const { user, logout } = useAuthStore();
   const { items, fetchCart } = useCartStore();
+  const { contents } = useCmsStore();
   const navigate = useNavigate();
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navMenu = contents.navigation_menu || [
+    { label: 'Home', path: '/' },
+    { label: 'Explore Catalog', path: '/catalog' },
+    { label: 'About Us', path: '/about' },
+    { label: 'Policies', path: '/policies' },
+    { label: 'FAQs', path: '/faq' },
+    { label: 'Contact', path: '/contact' }
+  ];
 
   // Load cart count on mount / user change
   useEffect(() => {
@@ -40,45 +51,15 @@ export default function Navbar() {
 
       {/* Desktop Nav Links */}
       <div className="hidden lg:flex items-center gap-6">
-        {/* Products */}
-        <Link to="/catalog" className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-brand-600 transition font-semibold">
-          <Grid className="w-4 h-4" />
-          Products
-        </Link>
-
-        {/* Categories Hover Dropdown */}
-        <div 
-          className="relative"
-          onMouseEnter={() => setCategoriesOpen(true)}
-          onMouseLeave={() => setCategoriesOpen(false)}
-        >
-          <button 
-            onClick={() => setCategoriesOpen(!categoriesOpen)}
-            className="flex items-center gap-1 text-sm text-slate-600 hover:text-brand-600 transition font-semibold focus:outline-none cursor-pointer py-2"
+        {navMenu.map((item: any, idx: number) => (
+          <Link
+            key={idx}
+            to={item.path}
+            className="text-sm text-slate-600 hover:text-brand-600 transition font-semibold"
           >
-            Categories <ChevronDown className="w-3.5 h-3.5" />
-          </button>
-          {categoriesOpen && (
-            <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-slate-100 rounded-2xl shadow-xl p-2.5 z-[999] flex flex-col gap-1 text-xs">
-              {['cameras', 'lenses', 'lights', 'audio', 'support', 'accessories'].map(cat => (
-                <Link
-                  key={cat}
-                  to={`/catalog?category=${cat}`}
-                  onClick={() => setCategoriesOpen(false)}
-                  className="px-3 py-2 hover:bg-slate-50 rounded-xl text-slate-700 font-semibold capitalize"
-                >
-                  {cat}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Contact Us */}
-        <Link to="/contact" className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-brand-600 transition font-semibold">
-          <PhoneCall className="w-4 h-4" />
-          Contact Us
-        </Link>
+            {item.label}
+          </Link>
+        ))}
 
         {user && user.role === 'ADMIN' && (
           <Link to="/admin" className="flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 transition font-semibold">
@@ -157,38 +138,16 @@ export default function Navbar() {
         <div className="absolute top-full left-0 right-0 bg-white border-b border-slate-100 shadow-xl z-50 p-6 flex flex-col gap-6 lg:hidden animate-fade-in">
           {/* Main Links */}
           <div className="flex flex-col gap-4">
-            <Link 
-              to="/catalog" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-brand-600 transition"
-            >
-              <Grid className="w-4 h-4" /> Products
-            </Link>
-
-            {/* Mobile Categories list collapse */}
-            <div className="space-y-2">
-              <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest block">Categories</span>
-              <div className="grid grid-cols-2 gap-2 pl-2">
-                {['cameras', 'lenses', 'lights', 'audio', 'support', 'accessories'].map(cat => (
-                  <Link
-                    key={cat}
-                    to={`/catalog?category=${cat}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-xs text-slate-600 hover:text-brand-600 font-semibold capitalize py-1"
-                  >
-                    • {cat}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <Link 
-              to="/contact" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-brand-600 transition pt-2 border-t border-slate-50"
-            >
-              <PhoneCall className="w-4 h-4" /> Contact Us
-            </Link>
+            {navMenu.map((item: any, idx: number) => (
+              <Link
+                key={idx}
+                to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-bold text-slate-700 hover:text-brand-600 transition"
+              >
+                {item.label}
+              </Link>
+            ))}
 
             {user && user.role === 'ADMIN' && (
               <Link 
