@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, Camera, Grid, BarChart2, ChevronDown, PhoneCall, Menu, X } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Camera, Grid, BarChart2, ChevronDown, PhoneCall, Menu, X, Bell } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useCartStore } from '../store/cartStore';
 import { useCmsStore } from '../store/cmsStore';
+import { useNotificationStore } from '../store/notificationStore';
 
 export default function Navbar() {
   const { user, logout } = useAuthStore();
@@ -13,6 +14,9 @@ export default function Navbar() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const { notifications, fetchNotifications, markAsRead, markAllRead } = useNotificationStore();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+
   const navMenu = [
     { label: 'Home', path: '/' },
     { label: 'Catalog', path: '/catalog' },
@@ -20,12 +24,15 @@ export default function Navbar() {
     { label: 'Contact', path: '/contact' }
   ];
 
-  // Load cart count on mount / user change
+  // Load cart count & notifications on mount / user change
   useEffect(() => {
     if (user) {
       fetchCart();
+      fetchNotifications();
     }
-  }, [user, fetchCart]);
+  }, [user, fetchCart, fetchNotifications]);
+
+  const unreadNotificationsCount = notifications.filter(n => !n.read).length;
 
   const handleLogout = () => {
     logout();
@@ -78,6 +85,69 @@ export default function Navbar() {
       <div className="flex items-center gap-3">
         {user ? (
           <>
+            {/* Notifications Button */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationsOpen(!notificationsOpen)}
+                className="relative p-2 rounded-xl hover:bg-slate-50 text-slate-650 hover:text-brand-600 transition-all cursor-pointer"
+                title="Notifications"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadNotificationsCount > 0 && (
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {unreadNotificationsCount}
+                  </span>
+                )}
+              </button>
+
+              {notificationsOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-100 rounded-2xl shadow-xl p-3.5 z-[999] text-xs">
+                  <div className="flex justify-between items-center pb-2.5 border-b border-slate-100 mb-2">
+                    <span className="font-extrabold text-slate-800">Notifications</span>
+                    {unreadNotificationsCount > 0 && (
+                      <button
+                        onClick={() => markAllRead()}
+                        className="text-[10px] text-brand-650 hover:underline font-bold cursor-pointer"
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-60 overflow-y-auto space-y-2">
+                    {notifications.length === 0 ? (
+                      <p className="text-center text-slate-400 py-6 font-medium">No notifications yet.</p>
+                    ) : (
+                      notifications.map((n: any) => (
+                        <div
+                          key={n.id}
+                          onClick={() => {
+                            if (!n.read) markAsRead(n.id);
+                          }}
+                          className={`p-2.5 rounded-xl border transition cursor-pointer text-left ${
+                            n.read 
+                              ? 'bg-white border-slate-50 hover:bg-slate-50' 
+                              : 'bg-brand-50/40 border-brand-100 hover:bg-brand-50/60'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <span className={`font-bold text-[11px] ${n.read ? 'text-slate-700' : 'text-slate-900'}`}>
+                              {n.title}
+                            </span>
+                            {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-brand-600 shrink-0 mt-1" />}
+                          </div>
+                          <p className="text-[10px] text-slate-500 leading-normal mt-0.5 font-medium">{n.message}</p>
+                          <span className="text-[8px] text-slate-400 block mt-1">
+                            {new Date(n.createdAt).toLocaleDateString()} {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Cart Button */}
             {user.role !== 'VENDOR' && (
               <Link to="/cart" className="relative p-2 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-brand-600 transition-all">

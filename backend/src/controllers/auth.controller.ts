@@ -4,6 +4,7 @@ import { authMiddleware, requireRole } from '../middleware/auth.middleware';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
+import { createNotification, notifyAdmins } from '../utils/notification';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secure-camerarent-secret-key-2026';
 
@@ -201,6 +202,9 @@ router.put('/kyc', authMiddleware, async (req: Request, res: Response) => {
       },
     });
 
+    await createNotification(req.user!.id, 'KYC Uploaded', 'Your KYC documents have been successfully submitted and are pending administrative review.', 'KYC_STATUS');
+    await notifyAdmins('New KYC Submission', `User ${req.user!.name} has uploaded their KYC document for review.`, 'KYC_STATUS');
+
     res.json({
       message: 'KYC documents submitted. Pending administrative review.',
       kycStatus: 'PENDING',
@@ -247,6 +251,9 @@ router.put('/admin/kyc/:userId', authMiddleware, requireRole(['ADMIN']), async (
       where: { id: userId },
       data: { kycStatus: status },
     });
+
+    await createNotification(userId, 'KYC Verification Update', `Your KYC verification request status is updated to ${status}.`, 'KYC_STATUS');
+    await notifyAdmins('KYC Status Resolved', `User ${updatedUser.name} KYC has been resolved as ${status}.`, 'KYC_STATUS');
 
     res.json({
       message: `KYC status updated to ${status} for user ${updatedUser.name}`,

@@ -7,6 +7,7 @@ import cartRoutes from './controllers/cart.controller';
 import orderRoutes from './controllers/order.controller';
 import contactRoutes from './controllers/contact.controller';
 import cmsRoutes from './controllers/cms.controller';
+import notificationRoutes from './controllers/notification.controller';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/cms', cmsRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Root/Health route
 app.get('/', (req, res) => {

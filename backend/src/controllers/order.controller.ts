@@ -3,6 +3,7 @@ import { prisma } from '../db';
 import { authMiddleware, requireRole } from '../middleware/auth.middleware';
 import { checkProductAvailability } from '../services/availability.service';
 import { sendWhatsAppMessage } from '../services/whatsapp.service';
+import { createNotification, notifyAdmins } from '../utils/notification';
 
 const router = Router();
 
@@ -156,6 +157,10 @@ router.post('/checkout', async (req: Request, res: Response) => {
     } else {
       console.log(`[WhatsApp API Automated Send] To N/A: "${waMsg}" (Customer has no phone number)`);
     }
+
+    // Send notifications
+    await createNotification(userId, 'Order Placed Successfully', `Your order #${orderNumber} has been placed successfully and is pending verification.`, 'ORDER_PLACED');
+    await notifyAdmins('New Order Placed', `Order #${orderNumber} was placed by user ${req.user!.name || req.user!.email}.`, 'ORDER_PLACED');
 
     res.status(201).json({
       message: 'Order placed successfully',
@@ -393,6 +398,9 @@ router.put('/:id/status', requireRole(['ADMIN', 'VENDOR']), async (req: Request,
       }
     }
 
+    await createNotification(order.userId, 'Order Status Updated', `Your order #${order.orderNumber} status is updated to ${status}.`, 'ORDER_STATUS');
+    await notifyAdmins('Order Status Changed', `Order #${order.orderNumber} status was changed to ${status}.`, 'ORDER_STATUS');
+
     res.json({
       message: `Order status updated to ${status}`,
       order: updatedOrder,
@@ -447,6 +455,9 @@ router.post('/:id/cancel', async (req: Request, res: Response) => {
         status: 'PENDING',
       },
     });
+
+    await createNotification(order.userId, 'Cancellation Requested', `Cancellation request submitted for order #${order.orderNumber}.`, 'CANCELLATION');
+    await notifyAdmins('New Cancellation Request', `Cancellation request submitted for order #${order.orderNumber}.`, 'CANCELLATION');
 
     res.status(201).json({
       message: 'Cancellation requested. Awaiting administrative review.',
@@ -536,6 +547,9 @@ router.put('/admin/cancellations/:requestId', requireRole(['ADMIN']), async (req
         console.log(`[WhatsApp API Automated Send] To N/A: "${waMsg}" (Customer has no phone number)`);
       }
     }
+
+    await createNotification(request.order.userId, 'Cancellation Resolved', `Your cancellation request for order #${request.order.orderNumber} has been ${statusValue.toLowerCase()}.`, 'CANCELLATION');
+    await notifyAdmins('Cancellation Resolved', `Cancellation request for order #${request.order.orderNumber} resolved as ${statusValue.toLowerCase()}.`, 'CANCELLATION');
 
     res.json({
       message: `Cancellation request successfully ${action.toLowerCase()}d`,
